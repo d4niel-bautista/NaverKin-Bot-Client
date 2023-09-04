@@ -13,13 +13,16 @@ SERVER_IP = os.getenv('SERVER_IP')
 class Client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    def __init__(self):
+        self.connect()
+
     def connect(self):
         self.client.connect((SERVER_IP, PORT))
 
     def disconnect(self):
         self.send(msg.DISCONNECT)
         response = self.receive()
-        print(response)
+        return response
 
     def send(self, message: str):
         message = json.dumps(message)
