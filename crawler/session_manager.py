@@ -4,8 +4,9 @@ def load_cookies(driver, cookies):
     for cookie in cookies:
         for key, val in cookie.items():
             if key == 'domain':
-                print(val)
-                driver.get(val)
+                if val[0] == '.':
+                    val = val[1:]
+                driver.get('https://' + val)
                 time.sleep(5)
                 driver.add_cookie(cookie)
                 break

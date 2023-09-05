@@ -1,5 +1,6 @@
 from networking.service import Service
 from crawler.session_manager import save_cookies, load_cookies, load_useragent
+import json
 
 class Crawler():
     username = ''
@@ -22,7 +23,7 @@ class Crawler():
     def get_cookies(self, driver):
         response = self.service.get_cookies(self.username)
         if type(response) is dict:
-            load_cookies(driver, response['cookies'])
+            load_cookies(driver, json.loads(response['cookies']))
     
     def save_cookies(self, driver):
         save_cookies(self.username, self.service, driver)
