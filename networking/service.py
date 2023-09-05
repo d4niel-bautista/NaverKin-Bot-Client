@@ -20,6 +20,21 @@ class Service():
         response = self.client.receive()
         return response
     
+    def get_cookies(self, username):
+        request = msg.GET_COOKIES
+        request['data']['username'] = username
+        self.client.send(request)
+        response = self.client.receive()
+        return response
+    
+    def save_cookies(self, username, cookies):
+        request = msg.SAVE_COOKIES
+        request['data']['username'] = username
+        request['data']['cookies'] = cookies
+        self.client.send(request)
+        response = self.client.receive()
+        return response
+    
     def update_question(self, question_id, username):
         request = msg.UPDATE_QUESTION
         request['data']['id'] = question_id
