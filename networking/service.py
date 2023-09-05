@@ -35,11 +35,25 @@ class Service():
         response = self.client.receive()
         return response
     
+    def get_useragent(self, username):
+        request = msg.GET_USERAGENT
+        request['data']['username'] = username
+        self.client.send(request)
+        response = self.client.receive()
+        return response
+    
+    def save_useragent(self, username, useragent):
+        request = msg.SAVE_USERAGENT
+        request['data']['username'] = username
+        request['data']['useragent'] = useragent
+        self.client.send(request)
+        response = self.client.receive()
+        return response
+    
     def update_question(self, question_id, username):
         request = msg.UPDATE_QUESTION
         request['data']['id'] = question_id
         request['data']['respondent'] = username
-        print(request)
         self.client.send(request)
         response = self.client.receive()
         return response

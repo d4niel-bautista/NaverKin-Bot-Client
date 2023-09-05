@@ -1,6 +1,10 @@
 DISCONNECT = {'message': 'DISCONNECT'}
 GET_ID = {'message': 'GET_ACCOUNT'}
 GET_QUESTION = {'message': 'GET_QUESTION', 'data': {'username': ''}}
+GET_COOKIES = {'message': 'GET_COOKIES', 'data': {'username': ''}}
+SAVE_COOKIES = {'message': 'SAVE_COOKIES', 'data': {'username': '', 'cookies': []}}
+GET_USERAGENT = {'message': 'GET_USERAGENT', 'data': {'username': ''}}
+SAVE_USERAGENT = {'message': 'SAVE_USERAGENT', 'data': {'username': '', 'useragent': ''}}
 UPDATE_ACCOUNT = {'message': 'UPDATE_ACCOUNT', 'data': {'username': '', 'status': ''}}
 UPDATE_QUESTION = {'message': 'UPDATE_QUESTION', 'data': {'id': '', 'respondent': '', 'status': ''}}
 ID_REACHED_LIMIT = {'message': 'ID_REACHED_LIMIT'}

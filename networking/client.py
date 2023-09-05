@@ -30,4 +30,5 @@ class Client():
     
     def receive(self):
         message = self.client.recv(HEADER_LEN).decode(CODEC)
+        message = json.loads(message)
         return message
