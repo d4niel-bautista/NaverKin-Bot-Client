@@ -1,6 +1,10 @@
 from networking.service import Service
 from crawler.session_manager import save_cookies, load_cookies, load_useragent, save_useragent
 import undetected_chromedriver as uc
+import subprocess
+import time
+import pyautogui
+import pyperclip
 
 class Crawler():
     username = ''
@@ -19,11 +23,15 @@ class Crawler():
         if type(response) is dict:
             self.username = response['username']
             self.password = response['password']
+            return True
+        return False
     
     def get_cookies(self, driver):
         response = self.service.get_cookies(self.username)
         if type(response) is dict:
             load_cookies(driver, response['cookies'])
+            return True
+        return False
     
     def save_cookies(self, driver):
         save_cookies(self.username, self.service, driver)
@@ -38,3 +46,66 @@ class Crawler():
 
     def get_question(self):
         question = self.service.get_question(self.username)
+        return question['id']
+    
+    def init_driver(self):
+        try:
+            subprocess.call('taskkill /f /im chrome.exe /t')
+        except:
+            pass
+
+        options = uc.ChromeOptions()
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument('--start-maximized')
+        options.add_argument('--disable-notifications')
+        prefs = {"credentials_enable_service": False,
+                "profile.password_manager_enabled": False}
+        options.add_experimental_option("prefs", prefs)
+
+        driver = uc.Chrome(options=options, use_subprocess=True)
+        return driver
+    
+    def start(self):
+        if self.get_account():
+            driver = self.init_driver()
+            if self.get_cookies(driver=driver):
+                if not self.get_useragent(driver.options):
+                    self.save_useragent(driver)
+                    time.sleep(5)
+                    self.get_useragent(driver.options)
+                self.main(driver)
+            else:
+                self.first_run(driver)
+                self.main(driver)
+        else:
+            time.sleep(10)
+            return self.start()
+        return self.service.disconnect(self.username)
+                
+    def main(self, driver):
+        driver.get('https://kin.naver.com')
+        time.sleep(5)
+    
+    def first_run(self, driver):
+        driver.get(r'https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com%2F')
+        self.login(driver)
+        time.sleep(5)
+        self.set_view_type(driver)
+        time.sleep(2)
+        self.save_cookies(driver)
+        self.save_useragent(driver)
+
+    def login(self, driver):
+        time.sleep(5)
+        pyautogui.press('esc')
+        pyperclip.copy(self.username)
+        pyautogui.hotkey('ctrl', 'v')
+        time.sleep(5)
+        pyautogui.press('tab')
+        time.sleep(5)
+        pyperclip.copy(self.password)
+        pyautogui.hotkey('ctrl', 'v')
+        time.sleep(5)
+        login_btn = driver.find_element('xpath', '//*[@id="log.login"]')
+        login_btn.click()
+
