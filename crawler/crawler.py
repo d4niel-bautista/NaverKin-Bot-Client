@@ -9,8 +9,11 @@ import pyperclip
 class Crawler():
     username = ''
     password = ''
+    role = ''
     submit_delay = 60
     page_refresh = 300
+    cooldown = 3600
+    prohibited_words = []
     on_error = False
     stop = False
     service = None
@@ -23,8 +26,17 @@ class Crawler():
         if type(response) is dict:
             self.username = response['username']
             self.password = response['password']
+            self.role = response['role']
             return True
         return False
+
+    def get_configs(self):
+        response = self.service.get_configs(self.role)
+        if type(response) is dict:
+            self.submit_delay = response['submit_delay']
+            self.page_refresh = response['page_refresh']
+            self.cooldown = response['cooldown']
+            self.prohibited_words = response['prohibited_words']
     
     def get_cookies(self, driver):
         response = self.service.get_cookies(self.username)
@@ -40,6 +52,8 @@ class Crawler():
         response = self.service.get_useragent(self.username)
         if type(response) is dict:
             load_useragent(options, response['useragent'])
+            return True
+        return False
     
     def save_useragent(self, driver):
         save_useragent(self.username, self.service, driver)
@@ -67,6 +81,7 @@ class Crawler():
     
     def start(self):
         if self.get_account():
+            self.get_configs()
             driver = self.init_driver()
             if self.get_cookies(driver=driver):
                 if not self.get_useragent(driver.options):
@@ -85,13 +100,11 @@ class Crawler():
     def main(self, driver):
         driver.get('https://kin.naver.com')
         time.sleep(5)
-    
+
     def first_run(self, driver):
         driver.get(r'https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com%2F')
         self.login(driver)
         time.sleep(5)
-        self.set_view_type(driver)
-        time.sleep(2)
         self.save_cookies(driver)
         self.save_useragent(driver)
 
@@ -108,4 +121,3 @@ class Crawler():
         time.sleep(5)
         login_btn = driver.find_element('xpath', '//*[@id="log.login"]')
         login_btn.click()
-

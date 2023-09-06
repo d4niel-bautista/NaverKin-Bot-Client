@@ -13,6 +13,13 @@ class Service():
         response = self.client.receive()
         return response
     
+    def get_configs(self, role: int):
+        request = msg.GET_CONFIGS
+        request['data']['config_id'] = role
+        self.client.send(request)
+        response = self.client.receive()
+        return response
+    
     def get_question(self, username):
         request = msg.GET_QUESTION
         request['data']['username'] = username

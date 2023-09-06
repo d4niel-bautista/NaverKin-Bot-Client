@@ -1,5 +1,6 @@
 DISCONNECT = {'message': 'DISCONNECT'}
 GET_ID = {'message': 'GET_ACCOUNT'}
+GET_CONFIGS = {'message': 'GET_CONFIGS', 'data': {'config_id': ''}}
 GET_QUESTION = {'message': 'GET_QUESTION', 'data': {'username': ''}}
 GET_COOKIES = {'message': 'GET_COOKIES', 'data': {'username': ''}}
 SAVE_COOKIES = {'message': 'SAVE_COOKIES', 'data': {'username': '', 'cookies': []}}
