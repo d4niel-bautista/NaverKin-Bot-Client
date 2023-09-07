@@ -63,6 +63,10 @@ class Crawler():
         question = self.service.get_question(self.username)
         return question['id']
     
+    def save_question(self, driver: uc.Chrome, title):
+        id = driver.current_url
+        print(self.service.save_question(id, title, self.username))
+        
     def init_driver(self):
         try:
             subprocess.call('taskkill /f /im chrome.exe /t')
@@ -130,10 +134,13 @@ class Crawler():
         login_btn.click()
     
     def questioner_loop(self, driver):
-        driver.get('https://kin.naver.com/qna/question.naver')
-        pyautogui.press('esc')
-        time.sleep(5)
-        self.write_question(driver)
+        while True:
+            driver.get('https://kin.naver.com/qna/question.naver')
+            pyautogui.press('esc')
+            time.sleep(10)
+            title = self.write_question(driver)
+            self.save_question(driver, title)
+            time.sleep(self.page_refresh)
     
     def write_question(self, driver: uc.Chrome):
         title, content = generate_question()
@@ -161,6 +168,7 @@ class Crawler():
         time.sleep(10)
         driver.switch_to.alert.accept()
         time.sleep(5)
+        return title
 
     def respondent_loop(self, driver):
         pass

@@ -86,3 +86,12 @@ class Service():
         response = self.client.receive()
         self.client.disconnect()
         return response
+    
+    def save_question(self, id, title, username):
+        request = msg.SAVE_QUESTION
+        request['data']['question_id'] = id
+        request['data']['question_title'] = title
+        request['data']['author'] = username
+        self.client.send(request)
+        response = self.client.receive()
+        return response
