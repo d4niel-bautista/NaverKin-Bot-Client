@@ -1,4 +1,6 @@
 import openai
+import json
+import time
 
 def set_api_key():
     with open('configs/openai_api_key.txt', 'r+') as f:
@@ -19,3 +21,21 @@ def generate_response(query):
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
     response_message = response["choices"][0]["message"].content
     return response_message
+
+def generate_question(query='한국어를 사용하여 구체적인 질문을 하고 제목과 내용을 키로 하여 JSON 형식으로 응답합니다.'):
+    while True:
+        question = generate_response(query)
+        try:
+            question = json.loads(question)
+            if type(question) is dict:
+                if question.get('title') and question.get('content'):
+                    title = question.pop('title')
+                    content = question.pop('content')
+                    return title, content
+                elif question.get('제목') and question.get('내용'):
+                    title = question.pop('제목')
+                    content = question.pop('내용')
+                    return title, content
+        except:
+            pass
+        time.sleep(10)

@@ -5,6 +5,7 @@ import subprocess
 import time
 import pyautogui
 import pyperclip
+from .chatgpt import generate_response, generate_question
 
 class Crawler():
     username = ''
@@ -121,3 +122,11 @@ class Crawler():
         time.sleep(5)
         login_btn = driver.find_element('xpath', '//*[@id="log.login"]')
         login_btn.click()
+    
+    def questioner_loop(self, driver):
+        driver.get('https://kin.naver.com/qna/question.naver')
+        time.sleep(5)
+        self.write_question(driver)
+    
+    def write_question(self, driver):
+        title, content = generate_question()
