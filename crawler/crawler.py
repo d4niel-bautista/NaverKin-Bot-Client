@@ -136,6 +136,7 @@ class Crawler():
     def questioner_loop(self, driver):
         while True:
             driver.get('https://kin.naver.com/qna/question.naver')
+            self.close_popups(driver)
             pyautogui.press('esc')
             time.sleep(10)
             title = self.write_question(driver)
@@ -172,3 +173,11 @@ class Crawler():
 
     def respondent_loop(self, driver):
         pass
+
+    def close_popups(self, driver: uc.Chrome):
+        time.sleep(5)
+        try:
+            close_btn = driver.find_element('xpath', '//*[@id="waitForSelectionWarningLayer"]/div[1]/div/div/div[4]/a')
+            driver.execute_script('arguments[0].click();', close_btn)
+        except Exception as e:
+            print(e)
