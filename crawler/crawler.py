@@ -100,10 +100,16 @@ class Crawler():
                 
     def main(self, driver):
         driver.get('https://kin.naver.com')
+        pyautogui.press('esc')
         time.sleep(5)
+        if self.role == 0:
+            self.respondent_loop(driver)
+        elif self.role == 1:
+            self.questioner_loop(driver)
 
     def first_run(self, driver):
         driver.get(r'https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com%2F')
+        pyautogui.press('esc')
         self.login(driver)
         time.sleep(5)
         self.save_cookies(driver)
@@ -125,8 +131,36 @@ class Crawler():
     
     def questioner_loop(self, driver):
         driver.get('https://kin.naver.com/qna/question.naver')
+        pyautogui.press('esc')
         time.sleep(5)
         self.write_question(driver)
     
-    def write_question(self, driver):
+    def write_question(self, driver: uc.Chrome):
         title, content = generate_question()
+        time.sleep(10)
+        pyperclip.copy(title)
+        pyautogui.hotkey('ctrl', 'v')
+        editor_iframe = driver.find_element('xpath', '//iframe[@id="editor"]')
+        driver.switch_to.frame(editor_iframe)
+        time.sleep(5)
+        smart_editor_iframe = driver.find_element('xpath', '//iframe[@id="SmartEditorIframe"]')
+        driver.switch_to.frame(smart_editor_iframe)
+        time.sleep(5)
+        pyperclip.copy(content)
+        body_content = driver.find_element('xpath', '/html/body')
+        body_content.click()
+        time.sleep(10)
+        pyautogui.hotkey('ctrl', 'v')
+        time.sleep(10)
+        driver.switch_to.parent_frame()
+        submit_btn = driver.find_elements('xpath', '//button[contains(@class, "button_style is_primary _register")]')[0]
+        submit_btn.click()
+        time.sleep(self.submit_delay)
+        submit_btn = driver.find_elements('xpath', '//button[contains(@class, "button_style is_primary _register")]')[1]
+        submit_btn.click()
+        time.sleep(10)
+        driver.switch_to.alert.accept()
+        time.sleep(5)
+
+    def respondent_loop(self, driver):
+        pass
