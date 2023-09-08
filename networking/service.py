@@ -25,8 +25,11 @@ class Service():
         save_to_text_file('openai_api_key.txt', 'configs', response.pop('openai_api_key'))
         return response
     
-    def get_question(self, username):
-        request = msg.GET_QUESTION
+    def get_question(self, username, role):
+        if role == 0:
+            request = msg.GET_QUESTION
+        elif role == 1:
+            request = msg.SELECT_QUESTION
         request['data']['username'] = username
         self.client.send(request)
         response = self.client.receive()
