@@ -219,14 +219,17 @@ class Crawler():
             time.sleep(self.page_refresh)
             return
         driver.get(question['id'])
+        time.sleep(10)
         answers = driver.find_elements('xpath', '//div[@class="answer-content__item _contentWrap _answer"]')
         for answer in answers:
             answer_id = answer.get_attribute('id')
             respondent = answer.find_elements('xpath', f'//div[@id="{answer_id}"]//div[@class="profile_card"]//div[@class="profile_info"]/a[@class="name_area"]')
             if respondent:
-                if not respondent[0].get_attribute('href') == question['respondent']:
+                if not respondent[0].get_attribute('href') == question['respondent_url']:
                     continue
                 select_answer = answer.find_element('xpath', f'//div[@id="{answer_id}"]//div[@class="c-userinfo-answer _answerBottom"]//div[@class="c-userinfo-answer__right"]/a[@class="_answerSelectArea button_compose"]')
                 select_answer.click()
-        self.close_popups()
+                print(f"SELECTED {question['respondent']} RESPONDENT'S ANSWER")
+        time.sleep(10)
+        self.close_popups(driver)
         time.sleep(self.cooldown)

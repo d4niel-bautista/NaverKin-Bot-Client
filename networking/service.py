@@ -19,10 +19,11 @@ class Service():
         request['data']['config_id'] = role
         self.client.send(request)
         response = self.client.receive()
-        save_to_text_file('prescript.txt', 'configs', response.pop('prescript'))
-        save_to_text_file('prompt.txt', 'configs', response.pop('prompt'))
-        save_to_text_file('postscript.txt', 'configs', response.pop('postscript'))
-        save_to_text_file('openai_api_key.txt', 'configs', response.pop('openai_api_key'))
+        if type(response) is dict:
+            save_to_text_file('prescript.txt', 'configs', response.pop('prescript'))
+            save_to_text_file('prompt.txt', 'configs', response.pop('prompt'))
+            save_to_text_file('postscript.txt', 'configs', response.pop('postscript'))
+            save_to_text_file('openai_api_key.txt', 'configs', response.pop('openai_api_key'))
         return response
     
     def get_question(self, username, role):
