@@ -1,11 +1,12 @@
 from networking.service import Service
-from crawler.session_manager import save_cookies, load_cookies, load_useragent, save_useragent
+from crawler.session_manager import save_cookies, load_cookies, load_useragent, save_useragent, logged_in
 import undetected_chromedriver as uc
 import subprocess
 import time
 import pyautogui
 import pyperclip
 from .chatgpt import generate_response, generate_question
+from utils import bring_browser_to_front
 
 class Crawler():
     username = ''
@@ -77,26 +78,31 @@ class Crawler():
         options.add_argument('--disable-blink-features=AutomationControlled')
         options.add_argument('--start-maximized')
         options.add_argument('--disable-notifications')
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-popup-blocking")
         prefs = {"credentials_enable_service": False,
                 "profile.password_manager_enabled": False}
         options.add_experimental_option("prefs", prefs)
 
         driver = uc.Chrome(options=options, use_subprocess=True)
+        driver.maximize_window()
         return driver
     
     def start(self):
         if self.get_account():
             self.get_configs()
             driver = self.init_driver()
-            if self.get_cookies(driver=driver):
-                if not self.get_useragent(driver.options):
-                    self.save_useragent(driver)
-                    time.sleep(5)
-                    self.get_useragent(driver.options)
-                self.main(driver)
-            else:
-                self.first_run(driver)
-                self.main(driver)
+            driver.get('https://naver.com')
+            time.sleep(10)
+            if not self.get_cookies(driver=driver):
+                self.login(driver)
+            if not logged_in(driver):
+                self.login(driver)
+            if not self.get_useragent(driver.options):
+                self.save_useragent(driver)
+                time.sleep(5)
+                self.get_useragent(driver.options)
+            self.main(driver)
         else:
             time.sleep(10)
             return self.start()
@@ -104,6 +110,7 @@ class Crawler():
                 
     def main(self, driver):
         driver.get('https://kin.naver.com')
+        bring_browser_to_front()
         pyautogui.press('esc')
         time.sleep(5)
         if self.role == 0:
@@ -111,23 +118,27 @@ class Crawler():
         elif self.role == 1:
             self.questioner_loop(driver)
 
-    def first_run(self, driver):
+    def login(self, driver):
         driver.get(r'https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com%2F')
+        bring_browser_to_front()
         pyautogui.press('esc')
-        self.login(driver)
+        self.authenticate(driver)
         time.sleep(5)
         self.save_cookies(driver)
         self.save_useragent(driver)
 
-    def login(self, driver):
+    def authenticate(self, driver: uc.Chrome):
         time.sleep(5)
         pyautogui.press('esc')
         pyperclip.copy(self.username)
+        bring_browser_to_front()
         pyautogui.hotkey('ctrl', 'v')
         time.sleep(5)
+        bring_browser_to_front()
         pyautogui.press('tab')
         time.sleep(5)
         pyperclip.copy(self.password)
+        bring_browser_to_front()
         pyautogui.hotkey('ctrl', 'v')
         time.sleep(5)
         login_btn = driver.find_element('xpath', '//*[@id="log.login"]')
@@ -147,6 +158,7 @@ class Crawler():
         title, content = generate_question()
         time.sleep(10)
         pyperclip.copy(title)
+        bring_browser_to_front()
         pyautogui.hotkey('ctrl', 'v')
         editor_iframe = driver.find_element('xpath', '//iframe[@id="editor"]')
         driver.switch_to.frame(editor_iframe)
@@ -158,6 +170,7 @@ class Crawler():
         body_content = driver.find_element('xpath', '/html/body')
         body_content.click()
         time.sleep(10)
+        bring_browser_to_front()
         pyautogui.hotkey('ctrl', 'v')
         time.sleep(10)
         driver.switch_to.parent_frame()
@@ -177,7 +190,11 @@ class Crawler():
     def close_popups(self, driver: uc.Chrome):
         time.sleep(5)
         try:
-            close_btn = driver.find_element('xpath', '//*[@id="waitForSelectionWarningLayer"]/div[1]/div/div/div[4]/a')
-            driver.execute_script('arguments[0].click();', close_btn)
+            popups = driver.find_elements('xpath', '//div[contains(@class, "section_layer")]')
+            for popup in popups:
+                if popup.is_displayed():
+                    popup_id = popup.get_attribute('id')
+                    close_btn = driver.find_element('xpath', f'//div[@id="{popup_id}"]//a[@href="#"]')
+                    driver.execute_script('arguments[0].click();', close_btn)
         except Exception as e:
             print(e)
