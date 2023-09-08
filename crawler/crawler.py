@@ -61,8 +61,10 @@ class Crawler():
         save_useragent(self.username, self.service, driver)
 
     def get_question(self):
-        question = self.service.get_question(self.username)
-        return question['id']
+        question = self.service.get_question(self.username, self.role)
+        if type(question) is dict:
+            return question
+        return False
     
     def save_question(self, driver: uc.Chrome, title):
         id = driver.current_url
@@ -147,7 +149,9 @@ class Crawler():
     def questioner_loop(self, driver):
         while True:
             driver.get('https://kin.naver.com/qna/question.naver')
-            self.close_popups(driver)
+            if not self.close_popups(driver):
+                self.select_answer(driver)
+                continue
             pyautogui.press('esc')
             time.sleep(10)
             title = self.write_question(driver)
@@ -194,7 +198,35 @@ class Crawler():
             for popup in popups:
                 if popup.is_displayed():
                     popup_id = popup.get_attribute('id')
-                    close_btn = driver.find_element('xpath', f'//div[@id="{popup_id}"]//a[@href="#"]')
-                    driver.execute_script('arguments[0].click();', close_btn)
-        except Exception as e:
-            print(e)
+                    a_close = driver.find_elements('xpath', f'//div[@id="{popup_id}"]//a[@href="#" or contains(@class, "close")]')
+                    btn_close = driver.find_elements('xpath', f'//div[@id="{popup_id}"]//button[@type="button" and contains(@class, "close")]')
+                    if a_close:
+                        driver.execute_script('arguments[0].click();', a_close[0])
+                    elif btn_close:
+                        btn_close[0].click()
+                    else:
+                        print('Popup has no detected close button element')
+                        return False
+            return True
+        except:
+            print("No popup or popup can't be closed")
+            return False
+    
+    def select_answer(self, driver: uc.Chrome):
+        time.sleep(5)
+        question = self.get_question()
+        if not question:
+            time.sleep(self.page_refresh)
+            return
+        driver.get(question['id'])
+        answers = driver.find_elements('xpath', '//div[@class="answer-content__item _contentWrap _answer"]')
+        for answer in answers:
+            answer_id = answer.get_attribute('id')
+            respondent = answer.find_elements('xpath', f'//div[@id="{answer_id}"]//div[@class="profile_card"]//div[@class="profile_info"]/a[@class="name_area"]')
+            if respondent:
+                if not respondent[0].get_attribute('href') == question['respondent']:
+                    continue
+                select_answer = answer.find_element('xpath', f'//div[@id="{answer_id}"]//div[@class="c-userinfo-answer _answerBottom"]//div[@class="c-userinfo-answer__right"]/a[@class="_answerSelectArea button_compose"]')
+                select_answer.click()
+        self.close_popups()
+        time.sleep(self.cooldown)
