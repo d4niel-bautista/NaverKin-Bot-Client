@@ -31,3 +31,10 @@ def save_useragent(username, service, driver):
     useragent = driver.execute_script("return navigator.userAgent;")
     service.save_useragent(username, useragent)
     time.sleep(5)
+
+def logged_in(driver):
+    login_btn = driver.find_elements('xpath', '//a[@id="gnb_login_button"]')
+    if login_btn:
+        if login_btn[0].is_displayed():
+            return False
+    return True
