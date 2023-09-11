@@ -1,6 +1,8 @@
 from networking.client import Client
-import networking.messages as msg
+from networking.service import Service
+from crawler.crawler import Crawler
 
 client = Client()
-client.connect()
-client.disconnect()
+service = Service(client)
+crawler = Crawler(service)
+crawler.start()

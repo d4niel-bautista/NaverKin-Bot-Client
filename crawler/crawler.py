@@ -46,7 +46,7 @@ class Crawler():
             self.submit_delay = response['submit_delay']
             self.page_refresh = response['page_refresh']
             self.cooldown = response['cooldown']
-            self.prohibited_words = response['prohibited_words']
+            self.prohibited_words = [i.rstrip() for i in response['prohibited_words'].split('\n')]
     
     def get_cookies(self, driver):
         response = self.service.get_cookies(self.username)
@@ -167,6 +167,7 @@ class Crawler():
             time.sleep(10)
             title = self.write_question(driver)
             self.save_question(driver, title)
+            self.close_popups(driver)
             time.sleep(self.page_refresh)
     
     def write_question(self, driver: uc.Chrome):
@@ -205,7 +206,7 @@ class Crawler():
             if not question:
                 time.sleep(self.page_refresh)
                 continue
-            driver.get(question['id'])
+            driver.get(question['id'] + '&mode=answer')
             time.sleep(2)
             bring_browser_to_front()
             pyautogui.press('home')
@@ -237,7 +238,7 @@ class Crawler():
         try:
             WebDriverWait(driver, 3).until (EC.alert_is_present())
             alert = driver.switch_to.alert
-            if "µî±Ş¿¡¼­ ÇÏ·ç¿¡ µî·ÏÇÒ ¼ö ÀÖ´Â ´äº¯ °³¼ö´Â" in alert.text:
+            if "ë“±ê¸‰ì—ì„œ í•˜ë£¨ì— ë“±ë¡í•  ìˆ˜ ìˆëŠ” ë‹µë³€ ê°œìˆ˜ëŠ”" in alert.text:
                 alert.accept()
                 print(f"{self.username} HAS REACHED ID LIMIT")
                 self.update_account_status(2)
