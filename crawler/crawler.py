@@ -6,7 +6,11 @@ import time
 import pyautogui
 import pyperclip
 from .chatgpt import generate_response, generate_question
-from utils import bring_browser_to_front
+from utils import bring_browser_to_front, clean_question_content, pad_prescript_postscript
+from bs4 import BeautifulSoup
+from crawler.validators import text_has_prohibited_words
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class Crawler():
     username = ''
@@ -31,6 +35,10 @@ class Crawler():
             self.role = response['role']
             return True
         return False
+    
+    def update_account_status(self, status):
+        response = self.service.update_account(self.username, status)
+        print(response)
 
     def get_configs(self):
         response = self.service.get_configs(self.role)
@@ -71,7 +79,7 @@ class Crawler():
         print(self.service.save_question(id, title, self.username))
     
     def update_question_status_after_answer_selection(self, question_id):
-        self.service.update_question(question_id=question_id, author=self.username, status=1)
+        self.service.update_question(question_id=question_id, author=self.username, status=2)
         
     def init_driver(self):
         try:
@@ -191,8 +199,54 @@ class Crawler():
         time.sleep(5)
         return title
 
-    def respondent_loop(self, driver):
-        pass
+    def respondent_loop(self, driver: uc.Chrome):
+        while True:
+            question = self.get_question()
+            if not question:
+                time.sleep(self.page_refresh)
+                continue
+            driver.get(question['id'])
+            time.sleep(2)
+            bring_browser_to_front()
+            pyautogui.press('home')
+            self.answer_question(driver)
+    
+    def answer_question(self, driver: uc.Chrome):
+        time.sleep(5)
+        driver.find_element('xpath', '//div[contains(@class, "c-heading _questionContentsArea")]')
+        soup = BeautifulSoup(driver.page_source, 'lxml')
+        question_content = soup.select_one('div.c-heading._questionContentsArea')
+        question_content_cleaned = clean_question_content(question_content)
+        while True:
+            response = generate_response(question_content_cleaned)
+            if not text_has_prohibited_words(self.prohibited_words, response):
+                break
+            time.sleep(10)
+        finalized_text = pad_prescript_postscript(response)
+        bring_browser_to_front()
+        pyautogui.press('home')
+        pyperclip.copy(finalized_text)
+        pyautogui.hotkey('ctrl', 'v')
+        time.sleep(self.submit_delay)
+        register_answer_btn = driver.find_element('xpath', '//div[@id="smartEditorArea"]//div[@id="answerButtonArea"]//a[@id="answerRegisterButton"]')
+        driver.execute_script('arguments[0].click();', register_answer_btn)
+        self.handle_alerts(driver)
+        time.sleep(self.page_refresh)
+
+    def handle_alerts(self, driver: uc.Chrome):
+        try:
+            WebDriverWait(driver, 3).until (EC.alert_is_present())
+            alert = driver.switch_to.alert
+            if "등급에서 하루에 등록할 수 있는 답변 개수는" in alert.text:
+                alert.accept()
+                print(f"{self.username} HAS REACHED ID LIMIT")
+                self.update_account_status(2)
+                time.sleep(self.cooldown)
+                return self.start()
+            else:
+                alert.accept()
+        except:
+            print('No alert detected')
 
     def close_popups(self, driver: uc.Chrome):
         time.sleep(5)
