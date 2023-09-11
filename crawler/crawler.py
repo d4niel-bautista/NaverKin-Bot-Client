@@ -80,6 +80,9 @@ class Crawler():
     
     def update_question_status_after_answer_selection(self, question_id):
         self.service.update_question(question_id=question_id, author=self.username, status=2)
+    
+    def update_question_status_after_answering(self, question_id):
+        self.service.update_question(question_id=question_id, respondent=self.username, status=1)
         
     def init_driver(self):
         try:
@@ -207,10 +210,17 @@ class Crawler():
                 time.sleep(self.page_refresh)
                 continue
             driver.get(question['id'] + '&mode=answer')
-            time.sleep(2)
+            time.sleep(5)
+            smart_editor_area = driver.find_element('xpath', '//div[@id="smartEditorArea"]')
+            if not smart_editor_area.is_displayed():
+                print(f"QUESTION {question['id']} ALREADY HAS SELECTED ANSWER")
+                time.sleep(self.page_refresh)
+                continue
             bring_browser_to_front()
             pyautogui.press('home')
             self.answer_question(driver)
+            self.update_question_status_after_answering(question['id'])
+            time.sleep(self.page_refresh)
     
     def answer_question(self, driver: uc.Chrome):
         time.sleep(5)
@@ -232,7 +242,6 @@ class Crawler():
         register_answer_btn = driver.find_element('xpath', '//div[@id="smartEditorArea"]//div[@id="answerButtonArea"]//a[@id="answerRegisterButton"]')
         driver.execute_script('arguments[0].click();', register_answer_btn)
         self.handle_alerts(driver)
-        time.sleep(self.page_refresh)
 
     def handle_alerts(self, driver: uc.Chrome):
         try:
