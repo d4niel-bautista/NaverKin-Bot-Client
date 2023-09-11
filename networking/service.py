@@ -66,10 +66,12 @@ class Service():
         response = self.client.receive()
         return response
     
-    def update_question(self, question_id, username):
+    def update_question(self, question_id, respondent='', author='', status=0):
         request = msg.UPDATE_QUESTION
         request['data']['id'] = question_id
-        request['data']['respondent'] = username
+        request['data']['respondent'] = respondent
+        request['data']['author'] = author
+        request['data']['status'] = status
         self.client.send(request)
         response = self.client.receive()
         return response

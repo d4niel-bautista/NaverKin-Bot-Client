@@ -69,6 +69,9 @@ class Crawler():
     def save_question(self, driver: uc.Chrome, title):
         id = driver.current_url
         print(self.service.save_question(id, title, self.username))
+    
+    def update_question_status_after_answer_selection(self, question_id):
+        self.service.update_question(question_id=question_id, author=self.username, status=1)
         
     def init_driver(self):
         try:
@@ -230,6 +233,7 @@ class Crawler():
                 select_answer = answer.find_element('xpath', f'//div[@id="{answer_id}"]//div[@class="c-userinfo-answer _answerBottom"]//div[@class="c-userinfo-answer__right"]/a[@class="_answerSelectArea button_compose"]')
                 select_answer.click()
                 print(f"SELECTED {question['respondent']} RESPONDENT'S ANSWER")
+                self.update_question_status_after_answer_selection(question['id'])
         time.sleep(10)
         self.close_popups(driver)
         time.sleep(self.cooldown)

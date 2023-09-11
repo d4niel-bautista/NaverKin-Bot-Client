@@ -9,5 +9,5 @@ SAVE_QUESTION = {'message': 'SAVE_QUESTION', 'data': {'question_id': '', 'questi
 GET_USERAGENT = {'message': 'GET_USERAGENT', 'data': {'username': ''}}
 SAVE_USERAGENT = {'message': 'SAVE_USERAGENT', 'data': {'username': '', 'useragent': ''}}
 UPDATE_ACCOUNT = {'message': 'UPDATE_ACCOUNT', 'data': {'username': '', 'status': ''}}
-UPDATE_QUESTION = {'message': 'UPDATE_QUESTION', 'data': {'id': '', 'respondent': '', 'status': ''}}
+UPDATE_QUESTION = {'message': 'UPDATE_QUESTION', 'data': {'id': '', 'respondent': '', 'author': '', 'status': ''}}
 ID_REACHED_LIMIT = {'message': 'ID_REACHED_LIMIT'}
