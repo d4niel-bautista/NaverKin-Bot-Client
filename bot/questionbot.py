@@ -1,9 +1,9 @@
 import undetected_chromedriver as uc
-from crawler.naverkinbot import NaverKinBot
+from bot.naverkinbot import NaverKinBot
 import time
 import pyautogui
 import pyperclip
-from crawler.chatgpt import generate_question
+from bot.chatgpt import generate_question
 from utils import bring_browser_to_front
 
 class QuestionBot(NaverKinBot):

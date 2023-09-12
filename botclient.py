@@ -1,8 +1,9 @@
 from networking.client import Client
 from networking.service import Service
-from crawler.crawler import Crawler
+from bot.questionbot import QuestionBot
+from bot.answerbot import AnswerBot
 
 client = Client()
 service = Service(client)
-crawler = Crawler(service)
-crawler.start()
+bot = AnswerBot(service)
+bot.start()

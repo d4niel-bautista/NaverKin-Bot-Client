@@ -5,7 +5,7 @@ import pyautogui
 import pyperclip
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from crawler.session_manager import save_cookies, load_cookies, load_useragent, save_useragent, logged_in
+from bot.session_manager import save_cookies, load_cookies, load_useragent, save_useragent, logged_in
 from utils import bring_browser_to_front
 from networking.service import Service
 

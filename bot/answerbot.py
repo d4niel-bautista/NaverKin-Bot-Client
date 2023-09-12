@@ -1,5 +1,5 @@
 import undetected_chromedriver as uc
-from crawler.naverkinbot import NaverKinBot
+from bot.naverkinbot import NaverKinBot
 from networking.service import Service
 import time
 import pyautogui
@@ -7,7 +7,7 @@ import pyperclip
 from .chatgpt import generate_response
 from utils import bring_browser_to_front, clean_question_content, pad_prescript_postscript
 from bs4 import BeautifulSoup
-from crawler.validators import text_has_prohibited_words
+from bot.validators import text_has_prohibited_words
 
 class AnswerBot(NaverKinBot):
     def __init__(self, service: Service):
