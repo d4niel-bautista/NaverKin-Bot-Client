@@ -13,6 +13,13 @@ class Service():
         self.client.send(request)
         response = self.client.receive()
         return response
+
+    def get_account_interactions(self, username):
+        request = msg.GET_ACCOUNT_INTERACTIONS
+        request['data']['username'] = username
+        self.client.send(request)
+        response = self.client.receive()
+        return response
     
     def get_configs(self, role: int):
         request = msg.GET_CONFIGS

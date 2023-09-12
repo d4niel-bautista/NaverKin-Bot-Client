@@ -29,6 +29,14 @@ class NaverKinBot():
         self.levelup_id = ''
         time.sleep(10)
     
+    def get_account_interactions(self, username):
+        response = self.service.get_account_interactions(username)
+        if type(response) is dict:
+            interactions = response['interacted_accounts'].split(',')
+            return interactions
+        print(response)
+        return False
+    
     def update_account_status(self, status):
         response = self.service.update_account(self.username, status)
         print(response)
@@ -47,6 +55,7 @@ class NaverKinBot():
             self.page_refresh = response['page_refresh']
             self.cooldown = response['cooldown']
             self.prohibited_words = [i.rstrip() for i in response['prohibited_words'].split('\n')]
+            self.max_interactions = response['max_interactions']
     
     def get_cookies(self, driver):
         response = self.service.get_cookies(self.username)
