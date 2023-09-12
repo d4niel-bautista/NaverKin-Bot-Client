@@ -92,10 +92,12 @@ class NaverKinBot():
         if self.get_account():
             self.get_configs()
             driver = self.init_driver()
-            driver.get('https://naver.com')
             time.sleep(10)
             if not self.get_cookies(driver=driver):
                 self.login(driver)
+            driver.get("https://kin.naver.com")
+            bring_browser_to_front()
+            pyautogui.press('esc')
             if not logged_in(driver):
                 self.login(driver)
             if not self.get_useragent(driver.options):
@@ -109,10 +111,7 @@ class NaverKinBot():
         return self.service.disconnect(self.username)
     
     def main(self, driver: uc.Chrome):
-        driver.get('https://kin.naver.com')
-        bring_browser_to_front()
-        pyautogui.press('esc')
-        time.sleep(5)
+        pass
     
     def login(self, driver):
         driver.get(r'https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com%2F')
@@ -144,7 +143,7 @@ class NaverKinBot():
         try:
             WebDriverWait(driver, 3).until (EC.alert_is_present())
             alert = driver.switch_to.alert
-            if "µî±Ş¿¡¼­ ÇÏ·ç¿¡ µî·ÏÇÒ ¼ö ÀÖ´Â ´äº¯ °³¼ö´Â" in alert.text:
+            if "ë“±ê¸‰ì—ì„œ í•˜ë£¨ì— ë“±ë¡í•  ìˆ˜ ìˆëŠ” ë‹µë³€ ê°œìˆ˜ëŠ”" in alert.text:
                 alert.accept()
                 print(f"{self.username} HAS REACHED ID LIMIT")
                 self.update_account_status(2)

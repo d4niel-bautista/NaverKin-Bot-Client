@@ -33,7 +33,8 @@ def save_useragent(username, service, driver):
     time.sleep(5)
 
 def logged_in(driver):
-    login_btn = driver.find_elements('xpath', '//a[@id="gnb_login_button"]')
+    time.sleep(5)
+    login_btn = driver.find_elements('xpath', '//div[@class="header_gnb__cell"]//a[@id="gnb_login_button"]')
     if login_btn:
         if login_btn[0].is_displayed():
             return False
