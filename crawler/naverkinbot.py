@@ -23,8 +23,7 @@ class NaverKinBot():
         return False
     
     def release_account(self):
-        response = self.update_account_status(self.username, 0)
-        print(response)
+        self.update_account_status(self.username, 0)
         self.username = ''
         self.password = ''
         self.levelup_id = ''
@@ -38,6 +37,7 @@ class NaverKinBot():
         question = self.service.get_question(self.username, role, self.levelup_id)
         if type(question) is dict:
             return question
+        print(question)
         return False
     
     def get_configs(self):
