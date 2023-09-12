@@ -37,6 +37,10 @@ class NaverKinBot():
         print(response)
         return False
     
+    def update_account_interactions(self, target, username):
+        response = self.service.update_account_interactions(target, username)
+        print(response)
+    
     def update_account_status(self, status):
         response = self.service.update_account(self.username, status)
         print(response)

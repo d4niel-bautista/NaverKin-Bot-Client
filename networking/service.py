@@ -92,6 +92,14 @@ class Service():
         self.client.send(request)
         response = self.client.receive()
         return response
+
+    def update_account_interactions(self, target, username):
+        request = msg.ADD_INTERACTED_ACCOUNT
+        request['data']['target'] = target
+        request['data']['username'] = username
+        self.client.send(request)
+        response = self.client.receive()
+        return response
     
     def disconnect(self, username):
         request = msg.UPDATE_ACCOUNT
