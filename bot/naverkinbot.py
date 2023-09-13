@@ -12,18 +12,22 @@ from networking.service import Service
 class NaverKinBot():
     def __init__(self, service: Service):
         self.service = service
+        self.prev_account = ''
     
-    def get_account(self):
-        response = self.service.get_account()
+    def get_account(self, username=''):
+        response = self.service.get_account(username)
         if type(response) is dict:
             self.username = response['username']
             self.password = response['password']
             self.levelup_id = response['levelup_id']
             return True
+        print(response)
         return False
     
     def release_account(self):
-        self.update_account_status(self.username, 0)
+        self.prev_account = self.username
+        print(f"RELEASING {self.prev_account} ACCOUNT")
+        print(self.update_account_status(self.prev_account, 0))
         self.username = ''
         self.password = ''
         self.levelup_id = ''
@@ -39,11 +43,11 @@ class NaverKinBot():
     
     def update_account_interactions(self, target, username):
         response = self.service.update_account_interactions(target, username)
-        print(response)
+        return response
     
-    def update_account_status(self, status):
-        response = self.service.update_account(self.username, status)
-        print(response)
+    def update_account_status(self, username, status):
+        response = self.service.update_account(username, status)
+        return response
     
     def get_question(self, role):
         question = self.service.get_question(self.username, role, self.levelup_id)
@@ -102,7 +106,7 @@ class NaverKinBot():
         return driver
         
     def start(self):
-        if self.get_account():
+        if self.get_account(self.prev_account):
             self.get_configs()
             driver = self.init_driver()
             time.sleep(10)

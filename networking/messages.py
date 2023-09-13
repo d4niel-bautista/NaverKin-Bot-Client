@@ -1,5 +1,5 @@
 DISCONNECT = {'message': 'DISCONNECT'}
-GET_ID = {'message': 'GET_ACCOUNT'}
+GET_ID = {'message': 'GET_ACCOUNT', 'data': {'username': ''}}
 GET_ACCOUNT_INTERACTIONS = {'message': 'GET_ACCOUNT_INTERACTIONS', 'data': {'username': ''}}
 GET_CONFIGS = {'message': 'GET_CONFIGS', 'data': {'config_id': ''}}
 GET_QUESTION = {'message': 'GET_QUESTION', 'data': {'username': '', 'levelup_id': ''}}

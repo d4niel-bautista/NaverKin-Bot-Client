@@ -8,8 +8,10 @@ class Service():
     def __init__(self, client: Client):
         self.client = client
     
-    def get_account(self):
+    def get_account(self, username=''):
         request = msg.GET_ID
+        if username:
+            request['data']['username'] = username
         self.client.send(request)
         response = self.client.receive()
         return response
