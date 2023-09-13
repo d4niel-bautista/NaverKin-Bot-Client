@@ -5,6 +5,7 @@ import pyautogui
 import pyperclip
 from bot.chatgpt import generate_question
 from utils import bring_browser_to_front
+from bot.validators import text_has_prohibited_words
 
 class QuestionBot(NaverKinBot):
     def __init__(self, service):
@@ -34,7 +35,11 @@ class QuestionBot(NaverKinBot):
             time.sleep(self.cooldown)
     
     def write_question(self, driver: uc.Chrome):
-        title, content = generate_question()
+        while True:
+            title, content = generate_question()
+            if not text_has_prohibited_words(self.prohibited_words, title + " " + content):
+                break
+            time.sleep(15)
         time.sleep(10)
         pyperclip.copy(title)
         bring_browser_to_front()
