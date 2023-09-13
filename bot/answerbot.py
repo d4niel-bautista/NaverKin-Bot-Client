@@ -20,12 +20,25 @@ class AnswerBot(NaverKinBot):
         else:
             self.service.update_question(question_id=question_id, respondent=self.username, status=1)
     
+    def can_interact(self, target) -> bool:
+        interactions = self.get_account_interactions(self.username)
+        if interactions:
+            count_interacted = interactions.count(target)
+            if count_interacted >= self.max_interactions:
+                print(f'{self.username} CANNOT INTERACT WITH {target}. COUNT: {count_interacted}/{self.max_interactions}')
+                return False
+        return True
+
     def main(self, driver: uc.Chrome):
         while True:
             question = self.get_question(self.role)
             if not question:
                 time.sleep(self.page_refresh)
                 continue
+            if not self.can_interact(question['author']):
+                time.sleep(self.cooldown)
+                self.release_account()
+                return self.start()
             driver.get(question['id'] + '&mode=answer')
             time.sleep(5)
             smart_editor_area = driver.find_element('xpath', '//div[@id="smartEditorArea"]')
@@ -54,6 +67,7 @@ class AnswerBot(NaverKinBot):
         bring_browser_to_front()
         pyautogui.press('home')
         pyperclip.copy(finalized_text)
+        bring_browser_to_front()
         pyautogui.hotkey('ctrl', 'v')
         time.sleep(self.submit_delay)
         register_answer_btn = driver.find_element('xpath', '//div[@id="smartEditorArea"]//div[@id="answerButtonArea"]//a[@id="answerRegisterButton"]')
