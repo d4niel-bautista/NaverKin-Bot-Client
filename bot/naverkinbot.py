@@ -6,7 +6,7 @@ import pyperclip
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bot.session_manager import save_cookies, load_cookies, load_useragent, save_useragent, logged_in
-from utils import bring_browser_to_front
+from utils import bring_browser_to_front, get_chrome_browser_version
 from networking.service import Service
 
 class NaverKinBot():
@@ -101,7 +101,7 @@ class NaverKinBot():
                 "profile.password_manager_enabled": False}
         options.add_experimental_option("prefs", prefs)
 
-        driver = uc.Chrome(options=options, use_subprocess=True)
+        driver = uc.Chrome(options=options, use_subprocess=True, version_main=get_chrome_browser_version())
         driver.maximize_window()
         return driver
         
@@ -163,7 +163,7 @@ class NaverKinBot():
             if "등급에서 하루에 등록할 수 있는 답변 개수는" in alert.text:
                 alert.accept()
                 print(f"{self.username} HAS REACHED ID LIMIT")
-                self.update_account_status(2)
+                print(self.update_account_status(2))
                 time.sleep(self.cooldown)
                 return self.start()
             else:
