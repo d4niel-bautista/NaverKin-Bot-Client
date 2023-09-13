@@ -107,6 +107,7 @@ class NaverKinBot():
         
     def start(self):
         if self.get_account(self.prev_account):
+            print(f"{self.username} LOGGED IN")
             self.get_configs()
             driver = self.init_driver()
             time.sleep(10)
