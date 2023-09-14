@@ -7,7 +7,11 @@ class Service():
 
     def __init__(self, client: Client):
         self.client = client
-    
+        self.client.set_service(self)
+
+    def set_botclient(self, bot):
+        self.bot = bot
+
     def get_account(self, username=''):
         request = msg.GET_ID
         if username:
@@ -120,3 +124,10 @@ class Service():
         self.client.send(request)
         response = self.client.receive()
         return response
+    
+    def handle_push_messages(self, message):
+        if message['notif'] == 'STOP':
+            self.bot.stop = True
+            return
+        if message.get('target') == self.bot.username:
+            pass
