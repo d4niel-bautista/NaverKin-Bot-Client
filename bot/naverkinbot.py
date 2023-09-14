@@ -15,6 +15,7 @@ class NaverKinBot():
         self.prev_account = ''
         self.on_error = False
         self.stop = False
+        self.service.set_botclient(self)
     
     def get_account(self, username=''):
         response = self.service.get_account(username)
@@ -109,34 +110,38 @@ class NaverKinBot():
         
     def start(self):
         driver = self.init_driver()
-        reconnect_modem(driver)
-        if self.get_account(self.prev_account):
-            try:
+        if not self.stop:
+            reconnect_modem(driver)
+        if not self.stop:
+            if self.get_account(self.prev_account):
                 print(f"{self.username} LOGGED IN")
-                self.get_configs()
-                time.sleep(10)
+                if not self.stop:
+                    self.get_configs()
+                    time.sleep(10)
                 if not self.get_cookies(driver=driver):
-                    self.login(driver)
-                driver.get("https://kin.naver.com")
-                bring_browser_to_front()
-                pyautogui.press('esc')
+                    if not self.stop:
+                        self.login(driver)
+                if not self.stop:
+                    driver.get("https://kin.naver.com")
+                    bring_browser_to_front()
+                    pyautogui.press('esc')
                 if not logged_in(driver):
-                    self.login(driver)
-                if not self.get_useragent(driver.options):
-                    self.save_useragent(driver)
-                    time.sleep(5)
-                    self.get_useragent(driver.options)
-                self.main(driver)
-            except Exception as e:
-                print(e)
-                self.on_error = True
-        else:
-            time.sleep(10)
-            return self.start()
+                    if not self.stop:
+                        self.login(driver)
+                if not self.stop:
+                    if not self.get_useragent(driver.options):
+                        self.save_useragent(driver)
+                        time.sleep(5)
+                        self.get_useragent(driver.options)
+                if not self.stop:
+                    self.main(driver)
+            else:
+                time.sleep(10)
+                return self.start()
         if self.on_error:
             return self.service.disconnect(self.username)
         elif self.stop:
-            return
+            return print('STOPPED ON SERVER COMMAND')
         return
     
     def main(self, driver: uc.Chrome):
