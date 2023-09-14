@@ -13,6 +13,8 @@ class NaverKinBot():
     def __init__(self, service: Service):
         self.service = service
         self.prev_account = ''
+        self.on_error = False
+        self.stop = False
     
     def get_account(self, username=''):
         response = self.service.get_account(username)
@@ -109,25 +111,33 @@ class NaverKinBot():
         driver = self.init_driver()
         reconnect_modem(driver)
         if self.get_account(self.prev_account):
-            print(f"{self.username} LOGGED IN")
-            self.get_configs()
-            time.sleep(10)
-            if not self.get_cookies(driver=driver):
-                self.login(driver)
-            driver.get("https://kin.naver.com")
-            bring_browser_to_front()
-            pyautogui.press('esc')
-            if not logged_in(driver):
-                self.login(driver)
-            if not self.get_useragent(driver.options):
-                self.save_useragent(driver)
-                time.sleep(5)
-                self.get_useragent(driver.options)
-            self.main(driver)
+            try:
+                print(f"{self.username} LOGGED IN")
+                self.get_configs()
+                time.sleep(10)
+                if not self.get_cookies(driver=driver):
+                    self.login(driver)
+                driver.get("https://kin.naver.com")
+                bring_browser_to_front()
+                pyautogui.press('esc')
+                if not logged_in(driver):
+                    self.login(driver)
+                if not self.get_useragent(driver.options):
+                    self.save_useragent(driver)
+                    time.sleep(5)
+                    self.get_useragent(driver.options)
+                self.main(driver)
+            except Exception as e:
+                print(e)
+                self.on_error = True
         else:
             time.sleep(10)
             return self.start()
-        return self.service.disconnect(self.username)
+        if self.on_error:
+            return self.service.disconnect(self.username)
+        elif self.stop:
+            return
+        return
     
     def main(self, driver: uc.Chrome):
         pass
@@ -143,6 +153,8 @@ class NaverKinBot():
 
     def authenticate(self, driver: uc.Chrome):
         time.sleep(5)
+        driver.execute_script("document.getElementById('keep').click()")
+        time.sleep(1)
         pyautogui.press('esc')
         pyperclip.copy(self.username)
         bring_browser_to_front()
