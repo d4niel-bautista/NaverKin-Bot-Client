@@ -2,13 +2,14 @@ import socket
 import networking.messages as msg
 import os
 import json
+from utils import fetch_server_ip
 from dotenv import load_dotenv
 load_dotenv()
 
 PORT = int(os.getenv('SERVER_PORT'))
 CODEC = os.getenv('CODEC')
 HEADER_LEN = int(os.getenv('HEADER_LEN'))
-SERVER_IP = input("Enter Server IP Address: ")
+SERVER_IP = fetch_server_ip()
 
 class Client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
