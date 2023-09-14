@@ -16,7 +16,7 @@ class AnswerBot(NaverKinBot):
     
     def update_question_status_after_answering(self, question_id):
         if self.levelup_id:
-            self.service.update_question(question_id=question_id, respondent=self.username, status=2)
+            self.service.update_question(question_id=question_id, status=2)
         else:
             self.service.update_question(question_id=question_id, respondent=self.username, status=1)
     
@@ -31,25 +31,41 @@ class AnswerBot(NaverKinBot):
 
     def main(self, driver: uc.Chrome):
         while True:
+            if self.stop:
+                return
             question = self.get_question(self.role)
             if not question:
                 time.sleep(self.page_refresh)
                 continue
+            if self.stop:
+                return
             if not self.can_interact(question['author']):
                 time.sleep(self.cooldown)
                 self.release_account()
+                if self.stop:
+                    return
                 return self.start()
+            if self.stop:
+                return
             driver.get(question['id'] + '&mode=answer')
             time.sleep(5)
             smart_editor_area = driver.find_element('xpath', '//div[@id="smartEditorArea"]')
             if not smart_editor_area.is_displayed():
+                if self.stop:
+                    return
                 print(f"QUESTION {question['id']} ALREADY HAS SELECTED ANSWER")
                 time.sleep(self.page_refresh)
                 continue
             bring_browser_to_front()
             pyautogui.press('home')
+            if self.stop:
+                return
             self.answer_question(driver)
+            if self.stop:
+                return
             self.update_question_status_after_answering(question['id'])
+            if self.stop:
+                return
             time.sleep(self.page_refresh)
     
     def answer_question(self, driver: uc.Chrome):
