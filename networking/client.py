@@ -8,7 +8,7 @@ load_dotenv()
 PORT = int(os.getenv('SERVER_PORT'))
 CODEC = os.getenv('CODEC')
 HEADER_LEN = int(os.getenv('HEADER_LEN'))
-SERVER_IP = os.getenv('SERVER_IP')
+SERVER_IP = input("Enter Server IP Address: ")
 
 class Client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

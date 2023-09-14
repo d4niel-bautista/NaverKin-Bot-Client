@@ -4,3 +4,4 @@ openai
 pyautogui
 pywin32
 undetected-chromedriver
+python-dotenv
