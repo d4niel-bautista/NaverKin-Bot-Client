@@ -89,20 +89,8 @@ def start(driver):
             print('Program Error: ', e)
 
 """ START PROGRAM """
-def reconnect_modem():
+def reconnect_modem(driver):
     try:
-        # initialize the Chrome driver with undetected-chromedriver
-        options = ChromeOptions()
-        options.add_argument(r'--disable-extensions')
-        options.add_argument(r'--disable-application-cache')
-        options.add_argument(r'--disable-gpu')
-        options.add_argument(r'--no-sandbox')
-        options.add_argument(r'--disable-setuid-sandbox')
-        options.add_argument(r'--disable-dev-shm-usage')
-        options.add_argument(r'--disable-blink-features=AutomationControlled')
-
-        driver = Chrome(options=options, use_subprocess=True, version_main=get_chrome_browser_version())
-
         # Get the screen size
         screen_width = driver.execute_script('return window.screen.availWidth')
         screen_height = driver.execute_script('return window.screen.availHeight')
@@ -115,6 +103,5 @@ def reconnect_modem():
         start(driver)
         print('Program Closing in 20 seconds...')
         time.sleep(20)
-        driver.quit()
     except Exception as e:
         print('Program Error: ', e)

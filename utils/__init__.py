@@ -4,3 +4,4 @@ from .focus_browser_window import bring_browser_to_front
 from .clean_question_content import clean_question_content
 from .add_prescript_postscript import pad_prescript_postscript
 from .chrome_browser_version import get_chrome_browser_version
+from .reconnect_modem import reconnect_modem

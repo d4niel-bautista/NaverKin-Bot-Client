@@ -6,7 +6,7 @@ import pyperclip
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bot.session_manager import save_cookies, load_cookies, load_useragent, save_useragent, logged_in
-from utils import bring_browser_to_front, get_chrome_browser_version
+from utils import bring_browser_to_front, get_chrome_browser_version, reconnect_modem
 from networking.service import Service
 
 class NaverKinBot():
@@ -106,10 +106,11 @@ class NaverKinBot():
         return driver
         
     def start(self):
+        driver = self.init_driver()
+        reconnect_modem(driver)
         if self.get_account(self.prev_account):
             print(f"{self.username} LOGGED IN")
             self.get_configs()
-            driver = self.init_driver()
             time.sleep(10)
             if not self.get_cookies(driver=driver):
                 self.login(driver)
