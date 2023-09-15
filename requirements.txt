@@ -5,3 +5,4 @@ pyautogui
 pywin32
 undetected-chromedriver
 python-dotenv
+lxml

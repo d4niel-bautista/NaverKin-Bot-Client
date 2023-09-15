@@ -148,6 +148,7 @@ class NaverKinBot():
         pass
     
     def login(self, driver):
+        print("LOGGING IN")
         driver.get(r'https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com%2F')
         bring_browser_to_front()
         pyautogui.press('esc')
