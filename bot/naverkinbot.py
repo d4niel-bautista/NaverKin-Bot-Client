@@ -103,9 +103,14 @@ class NaverKinBot():
         prefs = {"credentials_enable_service": False,
                 "profile.password_manager_enabled": False}
         options.add_experimental_option("prefs", prefs)
-
-        driver = uc.Chrome(options=options, use_subprocess=True, version_main=get_chrome_browser_version())
-        driver.maximize_window()
+        while True:
+            try:
+                driver = uc.Chrome(options=options, use_subprocess=True, version_main=get_chrome_browser_version())
+                driver.maximize_window()
+                print("DRIVER INITIALIZED")
+                break
+            except:
+                continue
         return driver
         
     def start(self):
