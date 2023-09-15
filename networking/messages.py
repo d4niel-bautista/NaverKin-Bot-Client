@@ -3,6 +3,7 @@ GET_ID = {'message': 'GET_ACCOUNT', 'data': {'username': ''}}
 GET_ACCOUNT_INTERACTIONS = {'message': 'GET_ACCOUNT_INTERACTIONS', 'data': {'username': ''}}
 GET_CONFIGS = {'message': 'GET_CONFIGS', 'data': {'config_id': ''}}
 GET_QUESTION = {'message': 'GET_QUESTION', 'data': {'username': '', 'levelup_id': ''}}
+GET_UNANSWERED_QUESTION = {'message': 'GET_UNANSWERED_QUESTION', 'data': {'respondent': ''}}
 SELECT_QUESTION = {'message': 'SELECT_QUESTION', 'data': {'username': ''}}
 GET_COOKIES = {'message': 'GET_COOKIES', 'data': {'username': ''}}
 SAVE_COOKIES = {'message': 'SAVE_COOKIES', 'data': {'username': '', 'cookies': []}}

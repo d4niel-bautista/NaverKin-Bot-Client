@@ -27,6 +27,7 @@ class Client():
         self.client.connect((SERVER_IP, PORT))
 
     def disconnect(self):
+        print("DISCONNECTING...")
         self.send(msg.DISCONNECT)
         response = self.receive()
         return response

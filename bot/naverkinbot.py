@@ -113,32 +113,36 @@ class NaverKinBot():
         if not self.stop:
             reconnect_modem(driver)
         if not self.stop:
-            if self.get_account(self.prev_account):
-                print(f"{self.username} LOGGED IN")
-                if not self.stop:
-                    self.get_configs()
+            try:
+                if self.get_account(self.prev_account):
+                    print(f"{self.username} LOGGED IN")
+                    if not self.stop:
+                        self.get_configs()
+                        time.sleep(10)
+                    if not self.get_cookies(driver=driver):
+                        if not self.stop:
+                            self.login(driver)
+                    if not self.stop:
+                        driver.get("https://kin.naver.com")
+                        bring_browser_to_front()
+                        pyautogui.press('esc')
+                    if not logged_in(driver):
+                        if not self.stop:
+                            self.login(driver)
+                    if not self.stop:
+                        if not self.get_useragent(driver.options):
+                            self.save_useragent(driver)
+                            time.sleep(5)
+                            self.get_useragent(driver.options)
+                    if not self.stop:
+                        self.main(driver)
+                else:
                     time.sleep(10)
-                if not self.get_cookies(driver=driver):
-                    if not self.stop:
-                        self.login(driver)
-                if not self.stop:
-                    driver.get("https://kin.naver.com")
-                    bring_browser_to_front()
-                    pyautogui.press('esc')
-                if not logged_in(driver):
-                    if not self.stop:
-                        self.login(driver)
-                if not self.stop:
-                    if not self.get_useragent(driver.options):
-                        self.save_useragent(driver)
-                        time.sleep(5)
-                        self.get_useragent(driver.options)
-                if not self.stop:
-                    self.main(driver)
-            else:
-                time.sleep(10)
-                return self.start()
+                    return self.start()
+            except:
+                self.on_error = True
         if self.on_error:
+            print('STOPPED ON ERROR')
             return self.service.disconnect(self.username)
         elif self.stop:
             return print('STOPPED ON SERVER COMMAND')

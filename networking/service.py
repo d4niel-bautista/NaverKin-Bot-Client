@@ -51,6 +51,13 @@ class Service():
         response = self.client.receive()
         return response
     
+    def get_unanswered_question(self, respondent):
+        request = msg.GET_UNANSWERED_QUESTION
+        request['data']['respondent'] = respondent
+        self.client.send(request)
+        response = self.client.receive()
+        return response
+    
     def get_cookies(self, username):
         request = msg.GET_COOKIES
         request['data']['username'] = username

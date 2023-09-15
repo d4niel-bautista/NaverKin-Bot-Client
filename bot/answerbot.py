@@ -28,12 +28,21 @@ class AnswerBot(NaverKinBot):
                 print(f'{self.username} CANNOT INTERACT WITH {target}. COUNT: {count_interacted}/{self.max_interactions}')
                 return False
         return True
-
+    
+    def get_unanswered_question(self):
+        unanswered_question = self.service.get_unanswered_question(self.username)
+        if type(unanswered_question) is dict:
+            return unanswered_question
+        print(unanswered_question)
+        return False
+    
     def main(self, driver: uc.Chrome):
         while True:
             if self.stop:
                 return
-            question = self.get_question(self.role)
+            question = self.get_unanswered_question()
+            if not question:
+                question = self.get_question(self.role)
             if not question:
                 time.sleep(self.page_refresh)
                 continue
@@ -48,6 +57,8 @@ class AnswerBot(NaverKinBot):
             if self.stop:
                 return
             driver.get(question['id'] + '&mode=answer')
+            bring_browser_to_front()
+            pyautogui.press('esc')
             time.sleep(5)
             smart_editor_area = driver.find_element('xpath', '//div[@id="smartEditorArea"]')
             if not smart_editor_area.is_displayed():
