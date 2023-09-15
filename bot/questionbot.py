@@ -32,9 +32,14 @@ class QuestionBot(NaverKinBot):
                 pending_selection_count = self.check_questions_waiting_for_selection_count(self.username)
                 if pending_selection_count == 0:
                     break
-                print(f"{self.username} HAS {pending_selection_count} QUESTIONS WAITING FOR ANSWER SELECTION")
+                print(f"{self.username} HAS {pending_selection_count} QUESTIONS WAITING FOR ANSWER OR SELECTION")
                 self.select_answer(driver)
-                time.sleep(self.cooldown)
+                pending_selection_count_2 = self.check_questions_waiting_for_selection_count(self.username)
+                print(f"{pending_selection_count_2}/{pending_selection_count}")
+                if pending_selection_count_2 < pending_selection_count:
+                    time.sleep(self.cooldown)
+                else:
+                    time.sleep(self.page_refresh)
             print("WILL START WRITING A QUESTION")
             driver.get('https://kin.naver.com/qna/question.naver')
             if not self.close_popups(driver):
@@ -85,7 +90,6 @@ class QuestionBot(NaverKinBot):
         time.sleep(5)
         question = self.get_question(self.role)
         if not question:
-            time.sleep(self.page_refresh)
             return
         driver.get(question['id'])
         time.sleep(10)
@@ -102,3 +106,4 @@ class QuestionBot(NaverKinBot):
                 self.update_question_status_after_answer_selection(question['id'])
         time.sleep(10)
         self.close_popups(driver)
+        time.sleep(self.cooldown)
