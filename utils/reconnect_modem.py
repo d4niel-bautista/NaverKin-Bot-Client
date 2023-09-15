@@ -33,7 +33,7 @@ def login (driver):
         login_confirmation_element.click()
 
         # Check if login is success find this element
-        time.sleep(10)
+        time.sleep(3)
         driver.find_element(By.ID, 'menu')
     except Exception as e:
         print('Login Failed')
@@ -48,19 +48,19 @@ def start(driver):
     if login(driver):
         try:
             print('Program will start re-connecting modem...')
-            time.sleep(10)
+            time.sleep(3)
             driver.switch_to.frame(driver.find_element(By.ID, 'mainifr'))
 
             wait = WebDriverWait(driver, 10)
             apply_element = wait.until(EC.element_to_be_clickable((By.ID, 'apply')))
 
             select_element= Select(driver.find_element(By.ID, 'connect'))
-            time.sleep(30)
+            time.sleep(3)
 
             print('Disconnecting the modem...')
             select_element.select_by_value('1')
             apply_element.click()
-            time.sleep(60)
+            time.sleep(3)
 
             confirms = driver.find_elements(By.CSS_SELECTOR, '.xubox_layer div.xubox_main .xubox_botton a.xubox_yes')
 
@@ -68,12 +68,12 @@ def start(driver):
                 if confirm.is_displayed():
                     confirm.click()
 
-            time.sleep(30)
+            time.sleep(3)
 
             print('Re-connecting the modem...')
             select_element.select_by_value('0')
             apply_element.click()
-            time.sleep(60)
+            time.sleep(3)
 
             confirms = driver.find_elements(By.CSS_SELECTOR, '.xubox_layer div.xubox_main .xubox_botton a.xubox_yes')
 
@@ -81,12 +81,12 @@ def start(driver):
                 if confirm.is_displayed():
                     confirm.click()
 
-            time.sleep(30)
+            time.sleep(3)
 
             print('Modem is now connected...')
-            time.sleep(30)
+            time.sleep(3)
             print('Program Closing in 20 seconds...')
-            time.sleep(10)
+            time.sleep(3)
         except Exception as e:
             print('Program Error: ', e)
 

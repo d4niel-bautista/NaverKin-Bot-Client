@@ -71,6 +71,7 @@ class AnswerBot(NaverKinBot):
                 return
             if self.answer_question(driver):
                 self.update_question_status_after_answering(question['id'])
+                self.update_account_interactions(question['author'])
                 self.release_account()
                 if self.stop:
                     return
