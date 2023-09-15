@@ -28,11 +28,13 @@ class QuestionBot(NaverKinBot):
     
     def main(self, driver: uc.Chrome):
         while True:
-            pending_selection_count = self.check_questions_waiting_for_selection_count(self.username)
-            if pending_selection_count > 0:
+            while True:
+                pending_selection_count = self.check_questions_waiting_for_selection_count(self.username)
+                if pending_selection_count == 0:
+                    break
                 print(f"{self.username} HAS {pending_selection_count} QUESTIONS WAITING FOR ANSWER SELECTION")
-                time.sleep(self.page_refresh)
-                continue
+                self.select_answer(driver)
+                time.sleep(self.cooldown)
             print("WILL START WRITING A QUESTION")
             driver.get('https://kin.naver.com/qna/question.naver')
             if not self.close_popups(driver):
@@ -44,8 +46,6 @@ class QuestionBot(NaverKinBot):
             self.save_question(driver, title)
             self.close_popups(driver)
             time.sleep(self.page_refresh)
-            self.select_answer(driver)
-            time.sleep(self.cooldown)
     
     def write_question(self, driver: uc.Chrome):
         while True:
