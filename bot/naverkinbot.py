@@ -119,32 +119,34 @@ class NaverKinBot():
             reconnect_modem(driver)
         if not self.stop:
             try:
-                if self.get_account(self.prev_account):
-                    print(f"{self.username} LOGGED IN")
-                    if not self.stop:
-                        self.get_configs()
-                        time.sleep(10)
-                    if not self.get_cookies(driver=driver):
-                        if not self.stop:
-                            self.login(driver)
-                    if not self.stop:
-                        driver.get("https://kin.naver.com")
-                        bring_browser_to_front()
-                        pyautogui.press('esc')
-                    if not logged_in(driver):
-                        if not self.stop:
-                            self.login(driver)
-                    if not self.stop:
-                        if not self.get_useragent(driver.options):
-                            self.save_useragent(driver)
-                            time.sleep(5)
-                            self.get_useragent(driver.options)
-                    if not self.stop:
-                        self.main(driver)
-                else:
+                while True:
+                    if self.get_account(self.prev_account):
+                        print(f"{self.username} LOGGED IN")
+                        break
                     time.sleep(10)
-                    return self.start()
-            except:
+                    continue
+                if not self.stop:
+                    self.get_configs()
+                    time.sleep(10)
+                if not self.get_cookies(driver=driver):
+                    if not self.stop:
+                        self.login(driver)
+                if not self.stop:
+                    driver.get("https://kin.naver.com")
+                    bring_browser_to_front()
+                    pyautogui.press('esc')
+                if not logged_in(driver):
+                    if not self.stop:
+                        self.login(driver)
+                if not self.stop:
+                    if not self.get_useragent(driver.options):
+                        self.save_useragent(driver)
+                        time.sleep(5)
+                        self.get_useragent(driver.options)
+                if not self.stop:
+                    self.main(driver)
+            except Exception as e:
+                print(e)
                 self.on_error = True
         if self.on_error:
             print('STOPPED ON ERROR')
@@ -168,7 +170,18 @@ class NaverKinBot():
 
     def authenticate(self, driver: uc.Chrome):
         time.sleep(5)
-        driver.execute_script("document.getElementById('keep').click()")
+        while True:
+            try:
+                driver.execute_script("document.getElementById('keep').click()")
+                ip_security_label = driver.find_element('xpath', '//div[@class="ip_check"]//label[@for="switch"]//span[@class="blind"]').text
+                if ip_security_label == "off":
+                    print(f"IP SECURITY: {ip_security_label}")
+                    break
+                time.sleep(1)
+            except Exception as e:
+                print(e)
+                time.sleep(1)
+                continue
         time.sleep(1)
         pyautogui.press('esc')
         pyperclip.copy(self.username)
