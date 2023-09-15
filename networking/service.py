@@ -125,9 +125,16 @@ class Service():
         response = self.client.receive()
         return response
     
+    def get_questions_waiting_for_selection_count(self, author):
+        request = msg.GET_QUESTION_FOR_SELECTION_COUNT
+        request['data']['author'] = author
+        self.client.send(request)
+        response = self.client.receive()
+        return response
+    
     def handle_push_messages(self, message):
         if message['notif'] == 'STOP':
             self.bot.stop = True
             return
         if message.get('target') == self.bot.username:
-            pass
+            print(f"{self.bot.username} RECEIVED THE NOTIF")

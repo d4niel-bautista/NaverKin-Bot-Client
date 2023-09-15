@@ -13,3 +13,4 @@ UPDATE_ACCOUNT = {'message': 'UPDATE_ACCOUNT', 'data': {'username': '', 'status'
 ADD_INTERACTED_ACCOUNT = {'message': 'ADD_INTERACTED_ACCOUNT', 'data': {'target': '', 'username': ''}}
 UPDATE_QUESTION = {'message': 'UPDATE_QUESTION', 'data': {'id': '', 'respondent': '', 'author': '', 'status': ''}}
 ID_REACHED_LIMIT = {'message': 'ID_REACHED_LIMIT'}
+GET_QUESTION_FOR_SELECTION_COUNT = {'message': 'GET_QUESTION_FOR_SELECTION_COUNT', 'data': {'author': ''}}

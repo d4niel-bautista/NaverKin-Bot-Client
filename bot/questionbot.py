@@ -19,8 +19,21 @@ class QuestionBot(NaverKinBot):
     def update_question_status_after_answer_selection(self, question_id):
         self.service.update_question(question_id=question_id, author=self.username, status=3)
     
+    def check_questions_waiting_for_selection_count(self, author):
+        response = self.service.get_questions_waiting_for_selection_count(author)
+        if type(response) is dict:
+            return response['count']
+        print(response)
+        return False
+    
     def main(self, driver: uc.Chrome):
         while True:
+            pending_selection_count = self.check_questions_waiting_for_selection_count(self.username)
+            if pending_selection_count > 0:
+                print(f"{self.username} HAS {pending_selection_count} QUESTIONS WAITING FOR ANSWER SELECTION")
+                time.sleep(self.page_refresh)
+                continue
+            print("WILL START WRITING A QUESTION")
             driver.get('https://kin.naver.com/qna/question.naver')
             if not self.close_popups(driver):
                 self.select_answer(driver)
