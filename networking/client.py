@@ -17,8 +17,8 @@ class Client():
 
     def __init__(self):
         self.connect()
-        self.receive_thread = threading.Thread(target=self.receive_push_message, daemon=True)
-        self.receive_thread.start()
+        # self.receive_thread = threading.Thread(target=self.receive_push_message, daemon=True)
+        # self.receive_thread.start()
 
     def set_service(self, service):
         self.service = service

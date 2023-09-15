@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time, os
 from dotenv import load_dotenv
 load_dotenv()
-from utils import get_chrome_browser_version
+import requests
 
 USER = os.getenv('MODEM_USERNAME')
 PASS = os.getenv('MODEM_PASSWORD')
@@ -85,12 +85,20 @@ def start(driver):
 
             print('Modem is now connected...')
             time.sleep(30)
+            print('Program Closing in 20 seconds...')
+            time.sleep(10)
         except Exception as e:
             print('Program Error: ', e)
 
 """ START PROGRAM """
 def reconnect_modem(driver):
     try:
+        try:
+            status = requests.head('http://192.168.100.1', timeout=3)
+            print(f"MODEM {status.status_code}")
+        except:
+            print('MODEM NOT CONNECTED')
+            return
         # Get the screen size
         screen_width = driver.execute_script('return window.screen.availWidth')
         screen_height = driver.execute_script('return window.screen.availHeight')
@@ -101,7 +109,5 @@ def reconnect_modem(driver):
 
         # Starting the program for the first time
         start(driver)
-        print('Program Closing in 20 seconds...')
-        time.sleep(20)
     except Exception as e:
         print('Program Error: ', e)
