@@ -1,6 +1,3 @@
 __pycache__/
 venv/
 *.env
-*.log
-configs/*.txt
-server_ip.txt

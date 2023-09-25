@@ -1,1 +1,0 @@
-call .\venv\Scripts\python.exe main.py -bt q
