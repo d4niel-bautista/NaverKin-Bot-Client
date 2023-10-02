@@ -1,2 +1,5 @@
 websockets
 asyncio
+undetected-chromedriver
+pywin32
+python-dotenv

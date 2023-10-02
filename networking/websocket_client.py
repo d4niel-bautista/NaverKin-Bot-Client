@@ -15,7 +15,8 @@ class WebsocketClient():
                 if type(inbound_msg) is str:
                     inbound_msg = json.loads(inbound_msg)
                 await self.service_inbound.put(inbound_msg)
-        except:
+        except Exception as e:
+            print(e)
             return await self.start()
     
     async def send_message(self, websocket):
@@ -23,7 +24,8 @@ class WebsocketClient():
             while True:
                 outbound_msg = await self.ws_outbound.get()
                 await websocket.send(json.dumps(outbound_msg))
-        except:
+        except Exception as e:
+            print(e)
             return await self.start()
 
     async def start(self):

@@ -16,3 +16,9 @@ class Service():
         while True:
             inbound_msg = await self.service_inbound.get()
             await self.bot_client_inbound.put(inbound_msg)
+    
+    async def start(self):
+        asyncio.create_task(self.process_outbound_message())
+        asyncio.create_task(self.process_inbound_message())
+        await asyncio.Future()
+    
