@@ -20,4 +20,4 @@ async def bring_browser_to_front(window_name_keywords=['지식iN', 'Naver Sign i
             except:
                 win32com.client.Dispatch("WScript.Shell").SendKeys('%')
                 win32gui.SetForegroundWindow(hwnd)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.2)
