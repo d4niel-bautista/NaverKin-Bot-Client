@@ -3,10 +3,10 @@ import asyncio
 import json
 
 class WebsocketClient():
-    def __init__(self, client_id, queues) -> None:
+    def __init__(self, client_id, bot_client_inbound, ws_outbound) -> None:
         self.client_id = client_id
-        self.service_inbound = queues.service_inbound
-        self.ws_outbound = queues.ws_outbound
+        self.bot_client_inbound = bot_client_inbound
+        self.ws_outbound = ws_outbound
     
     async def receive_message(self, websocket):
         try:
@@ -14,7 +14,7 @@ class WebsocketClient():
                 inbound_msg = await websocket.recv()
                 if type(inbound_msg) is str:
                     inbound_msg = json.loads(inbound_msg)
-                await self.service_inbound.put(inbound_msg)
+                await self.bot_client_inbound.put(inbound_msg)
         except Exception as e:
             print(e)
             return await self.start()

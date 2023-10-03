@@ -1,9 +1,8 @@
 import asyncio
 
 class AsyncWorker():
-    def __init__(self, queues) -> None:
-        self.bot_client_inbound = queues.bot_client_inbound
-        self.service_outbound = queues.service_outbound
+    def __init__(self, bot_client_inbound) -> None:
+        self.bot_client_inbound = bot_client_inbound
         self.data_queue = asyncio.Queue(maxsize=1)
     
     async def process_inbound_message(self):

@@ -2,14 +2,14 @@ from .async_worker import AsyncWorker
 import asyncio
 import subprocess
 import undetected_chromedriver as uc
-from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_front, short_sleep, long_sleep
+from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_front, short_sleep
 from .session_manager import load_useragent, load_cookies, logged_in
 import pyautogui
 import pyperclip
 
 class NaverKinBot(AsyncWorker):
-    def __init__(self, queues) -> None:
-        super().__init__(queues)
+    def __init__(self, bot_client_inbound) -> None:
+        super().__init__(bot_client_inbound)
         self.account = {}
         self.user_session = {}
         self.configs = {}
@@ -58,7 +58,7 @@ class NaverKinBot(AsyncWorker):
 
         # WAIT FOR SERVER TO SEND USERNAME/PASSWORD
         self.account = await self.data_queue.get()
-        print(f"{self.account['username']} LOGGED IN")
+        print(f"RECEIVED {self.account['username']} ACCOUNT")
         print(self.account)
 
         #WAIT FOR SERVER TO SEND USER SESSION
@@ -78,6 +78,7 @@ class NaverKinBot(AsyncWorker):
         self.driver.get("https://kin.naver.com/")
         if not await logged_in(self.driver):
             await self.login(self.driver)
+        print(f"{self.account['username']} LOGGED IN")
         await short_sleep(5)
         await self.close_popups(self.driver)
     
