@@ -15,6 +15,7 @@ class QuestionBot(NaverKinBot):
         print(question)
         await self.write_question(self.driver, question['question'])
         await self.send_question_link(self.driver)
+        # WAIT FOR ANSWERBOT_ADVERTISEMENT ANSWER NOTIFICATION
         answer_selection = await self.data_queue.get()
         print(answer_selection)
         await self.select_answer(self.driver, answer_selection)
@@ -63,19 +64,15 @@ class QuestionBot(NaverKinBot):
     async def select_answer(self, driver: uc.Chrome, answer_selection: dict):
         await short_sleep(5)
         driver.get(answer_selection['question_link'])
-        # driver.switch_to.alert.accept()
         await short_sleep(10)
         answers = driver.find_elements('xpath', '//div[@class="answer-content__item _contentWrap _answer"]')
-        print(answers)
         for answer in answers:
             answer_id = answer.get_attribute('id')
             respondent = answer.find_elements('xpath', f'//div[@id="{answer_id}"]//div[@class="profile_card"]//div[@class="profile_info"]/a[@class="name_area"]')
-            print(respondent[0])
             if respondent:
-                print(respondent[0].get_attribute('href'), answer_selection['respondent_url'])
                 if not respondent[0].get_attribute('href') == answer_selection['respondent_url']:
                     continue
-                respondent_name = respondent[0].find_element('xpath', '//strong[@class="name"]').text
+                respondent_name = respondent[0].find_element('xpath', './strong[@class="name"]').text
                 # select_answer = answer.find_element('xpath', f'//div[@id="{answer_id}"]//div[@class="c-userinfo-answer _answerBottom"]//div[@class="c-userinfo-answer__right"]/a[@class="_answerSelectArea button_compose"]')
                 # select_answer.click()
                 print(f"SELECTED {respondent_name}'s ANSWER")
