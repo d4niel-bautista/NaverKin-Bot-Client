@@ -10,11 +10,11 @@ async def start():
     args = parser.parse_args()
     if args.bt == 'aa':
         bot = AnswerBot(bot_client_inbound, mode=0)
-        ws_client = WebsocketClient("AnswerBot_Advertisement", bot_client_inbound)
+        ws_client = WebsocketClient("AnswerBot_Advertisement", bot_client_inbound, ws_outbound)
         print('STARTING ANSWERBOT_ADVERTISEMENT')
     elif args.bt == 'ae':
         bot = AnswerBot(bot_client_inbound, mode=1)
-        ws_client = WebsocketClient("AnswerBot_Exposure", bot_client_inbound)
+        ws_client = WebsocketClient("AnswerBot_Exposure", bot_client_inbound, ws_outbound)
         print('STARTING ANSWERBOT_EXPOSURE')
     elif args.bt == 'q':
         bot = QuestionBot(bot_client_inbound)
