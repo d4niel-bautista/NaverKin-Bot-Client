@@ -19,6 +19,8 @@ class AnswerBot(NaverKinBot):
         print(question)
         if await self.answer_question(self.driver, question, answer):
             await self.send_notification_after_answering(question)
+        self.running = False
+        return
 
     async def answer_question(self, driver: uc.Chrome, question: dict, answer: str) -> bool:
         try:
