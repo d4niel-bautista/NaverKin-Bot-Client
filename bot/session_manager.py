@@ -36,9 +36,9 @@ async def logged_in(driver):
     if captcha_widget:
         if captcha_widget[0].is_displayed():
             return False
-    incorrect_credentials = driver.find_elements('xpath', '//div[@class="login_error_wrap" and @id="err_common"]')
-    if incorrect_credentials:
-        if incorrect_credentials[0].is_displayed():
+    invalid_login = driver.find_elements('xpath', '//div[@class="login_error_wrap"]')
+    if invalid_login:
+        if invalid_login[0].is_displayed():
             return False
     login_btn = driver.find_elements('xpath', '//div[@class="header_gnb__cell"]//a[@id="gnb_login_button"]')
     if login_btn:
