@@ -46,7 +46,10 @@ class AnswerBot(NaverKinBot):
             register_answer_btn = driver.find_element('xpath', '//div[@id="smartEditorArea"]//div[@id="answerButtonArea"]//a[@id="answerRegisterButton"]')
             driver.execute_script('arguments[0].click();', register_answer_btn)
             await short_sleep(5)
-            driver.switch_to.alert.accept()
+            try:
+                driver.switch_to.alert.accept()
+            except Exception as e:
+                print(e)
             await short_sleep(5)
             return True
         except Exception as e:
