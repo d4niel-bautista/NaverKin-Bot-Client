@@ -3,10 +3,11 @@ import asyncio
 import json
 
 class WebsocketClient():
-    def __init__(self, client_id, bot_client_inbound, ws_outbound) -> None:
+    def __init__(self, server_addr, client_id, bot_client_inbound, ws_outbound) -> None:
         self.client_id = client_id
         self.bot_client_inbound = bot_client_inbound
         self.ws_outbound = ws_outbound
+        self.server_addr = server_addr
     
     async def receive_message(self, websocket):
         try:
@@ -29,7 +30,7 @@ class WebsocketClient():
             return await self.start()
 
     async def start(self):
-        async with websockets.connect(f"ws://localhost:8000/{self.client_id}") as websocket:
+        async with websockets.connect(f"ws://{self.server_addr}:8000/{self.client_id}") as websocket:
             asyncio.create_task(self.receive_message(websocket))
             asyncio.create_task(self.send_message(websocket))
             await asyncio.Future()
