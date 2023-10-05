@@ -50,12 +50,12 @@ class QuestionBot(NaverKinBot):
         driver.switch_to.parent_frame()
         submit_btn = driver.find_elements('xpath', '//button[contains(@class, "button_style is_primary _register")]')[0]
         submit_btn.click()
-        # await long_sleep(self.configs['submit_delay'])
-        # submit_btn = driver.find_elements('xpath', '//button[contains(@class, "button_style is_primary _register")]')[1]
-        # submit_btn.click()
-        # await short_sleep(10)
-        # driver.switch_to.alert.accept()
-        # await short_sleep(5)
+        await long_sleep(self.configs['submit_delay'])
+        submit_btn = driver.find_elements('xpath', '//button[contains(@class, "button_style is_primary _register")]')[1]
+        submit_btn.click()
+        await short_sleep(10)
+        driver.switch_to.alert.accept()
+        await short_sleep(5)
         
     async def send_question_link(self, driver: uc.Chrome):
         await short_sleep(5)
@@ -75,6 +75,6 @@ class QuestionBot(NaverKinBot):
                 if not respondent[0].get_attribute('href') == answer_selection['respondent_url']:
                     continue
                 respondent_name = respondent[0].find_element('xpath', './strong[@class="name"]').text
-                # select_answer = answer.find_element('xpath', f'//div[@id="{answer_id}"]//div[@class="c-userinfo-answer _answerBottom"]//div[@class="c-userinfo-answer__right"]/a[@class="_answerSelectArea button_compose"]')
-                # select_answer.click()
+                select_answer = answer.find_element('xpath', f'//div[@id="{answer_id}"]//div[@class="c-userinfo-answer _answerBottom"]//div[@class="c-userinfo-answer__right"]/a[@class="_answerSelectArea button_compose"]')
+                select_answer.click()
                 print(f"SELECTED {respondent_name}'s ANSWER")

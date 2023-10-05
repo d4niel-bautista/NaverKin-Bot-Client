@@ -42,12 +42,12 @@ class AnswerBot(NaverKinBot):
             await bring_browser_to_front()
             pyautogui.press('home')
             pyautogui.hotkey('ctrl', 'v')
-            # await long_sleep(self.configs["submit_delay"])
-            # register_answer_btn = driver.find_element('xpath', '//div[@id="smartEditorArea"]//div[@id="answerButtonArea"]//a[@id="answerRegisterButton"]')
-            # driver.execute_script('arguments[0].click();', register_answer_btn)
-            # await short_sleep(5)
-            # driver.switch_to.alert.accept()
-            # await short_sleep(5)
+            await long_sleep(self.configs["submit_delay"])
+            register_answer_btn = driver.find_element('xpath', '//div[@id="smartEditorArea"]//div[@id="answerButtonArea"]//a[@id="answerRegisterButton"]')
+            driver.execute_script('arguments[0].click();', register_answer_btn)
+            await short_sleep(5)
+            driver.switch_to.alert.accept()
+            await short_sleep(5)
             return True
         except Exception as e:
             print("THERE IS ERROR WHILE ANSWERING")
