@@ -1,7 +1,13 @@
 import asyncio
+from networking.service import send_update_request
 import json
 
 async def load_cookies(driver, cookies):
+    try:
+        cookies = json.loads(cookies)
+    except:
+        print(f"INVALID COOKIES {cookies}")
+        return
     if cookies:
         for cookie in cookies:
             try:
@@ -14,15 +20,16 @@ async def load_useragent(options, useragent):
     if useragent:
         options.add_argument(f'--user-agent={useragent}')
 
-async def save_cookies(username, service, driver):
-    service.save_cookies(username, json.dumps(driver.get_cookies()))
+async def save_cookies(username, driver):
     await asyncio.sleep(5)
+    cookies = json.dumps(driver.get_cookies())
+    await send_update_request('user_sessions', data={"cookies": cookies}, filters={"username": username})
 
-async def save_useragent(username, service, driver):
-    useragent = driver.execute_script("return navigator.userAgent;")
-    service.save_useragent(username, useragent)
+async def save_user_agent(username, driver):
     await asyncio.sleep(5)
-
+    user_agent = driver.execute_script("return navigator.userAgent;")
+    await send_update_request('user_sessions', data={"user_agent": user_agent}, filters={"username": username})
+    
 async def logged_in(driver):
     await asyncio.sleep(5)
     captcha_widget = driver.find_elements('xpath', '//div[@class="captcha_wrap"]')

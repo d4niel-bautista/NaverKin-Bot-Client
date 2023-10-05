@@ -3,7 +3,7 @@ import asyncio
 import subprocess
 import undetected_chromedriver as uc
 from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_front, short_sleep
-from .session_manager import load_useragent, load_cookies, logged_in
+from .session_manager import load_useragent, load_cookies, logged_in, save_cookies, save_user_agent
 import pyautogui
 import pyperclip
 
@@ -46,6 +46,7 @@ class NaverKinBot(AsyncWorker):
             try:
                 driver = uc.Chrome(options=options, use_subprocess=True, version_main=await get_chrome_browser_version())
                 driver.maximize_window()
+                pyautogui.press('esc')
                 print("DRIVER INITIALIZED")
                 break
             except Exception as e:
@@ -97,6 +98,10 @@ class NaverKinBot(AsyncWorker):
         print(f"{self.account['username']} LOGGED IN")
         await short_sleep(5)
         await self.close_popups(self.driver)
+        if not self.user_session["cookies"] or login_attempts != 0:
+            await save_cookies(self.account["username"], self.driver)
+        if not self.user_session["user_agent"] or login_attempts != 0:
+            await save_user_agent(self.account["username"], self.driver)
         return True
     
     async def login(self, driver: uc.Chrome):

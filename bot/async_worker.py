@@ -12,6 +12,8 @@ class AsyncWorker():
                 await self.data_queue.put(inbound_msg["data"])
             elif inbound_msg["type"] == "task":
                 await self.execute_task(inbound_msg["message"])
+            elif inbound_msg["type"] == "message":
+                print(inbound_msg["response"])
     
     async def execute_task(self, task: str):
         pass
