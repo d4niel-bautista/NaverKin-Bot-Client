@@ -11,7 +11,9 @@ class AnswerBot(NaverKinBot):
         self.mode = mode
 
     async def main(self):
-        await super().main()
+        if not await super().main():
+            self.running = False
+            return
         answer = await self.data_queue.get()
         print(answer)
         # WAIT FOR QUESTIONBOT TO SEND THE QUESTION LINK

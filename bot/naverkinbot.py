@@ -76,11 +76,28 @@ class NaverKinBot(AsyncWorker):
         await load_cookies(self.driver, self.user_session['cookies'])
         await short_sleep(5)
         self.driver.get("https://kin.naver.com/")
-        if not await logged_in(self.driver):
+
+        login_attempts = 0
+        while login_attempts <= 2:
+            if await logged_in(self.driver):
+                break
             await self.login(self.driver)
+            if login_attempts == 0:
+                login_attempts += 1
+                continue
+            else:
+                print("FAILED LOGIN ATTEMPT")
+                await short_sleep(30)
+                login_attempts += 1
+            if login_attempts == 3:
+                print(f"FAILED LOGGING IN WITH {self.account['username']}'s ACCOUNT! STOPPING PROGRAM")
+                return False
+            continue
+        
         print(f"{self.account['username']} LOGGED IN")
         await short_sleep(5)
         await self.close_popups(self.driver)
+        return True
     
     async def login(self, driver: uc.Chrome):
         await short_sleep(5)

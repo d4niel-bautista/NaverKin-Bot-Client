@@ -10,7 +10,9 @@ class QuestionBot(NaverKinBot):
         super().__init__(queues)
     
     async def main(self):
-        await super().main()
+        if not await super().main():
+            self.running = False
+            return
         question = await self.data_queue.get()
         print(question)
         await self.write_question(self.driver, question['question'])
