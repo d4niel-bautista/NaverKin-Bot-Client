@@ -3,7 +3,7 @@ import undetected_chromedriver as uc
 from utils import short_sleep, long_sleep, bring_browser_to_front
 import pyperclip
 import pyautogui
-from networking.service import send_notification
+from networking.service import send_notification, update_account_interactions
 
 class AnswerBot(NaverKinBot):
     def __init__(self, queues, mode: int) -> None:
@@ -19,8 +19,11 @@ class AnswerBot(NaverKinBot):
         # WAIT FOR QUESTIONBOT TO SEND THE QUESTION LINK
         question = await self.data_queue.get()
         print(question)
+
         if await self.answer_question(self.driver, question, answer):
+            await update_account_interactions(question["question_bot_username"], self.account["username"])
             await self.send_notification_after_answering(question)
+
         self.running = False
         return
 
@@ -42,8 +45,12 @@ class AnswerBot(NaverKinBot):
             # await long_sleep(self.configs["submit_delay"])
             # register_answer_btn = driver.find_element('xpath', '//div[@id="smartEditorArea"]//div[@id="answerButtonArea"]//a[@id="answerRegisterButton"]')
             # driver.execute_script('arguments[0].click();', register_answer_btn)
+            # await short_sleep(5)
+            # driver.switch_to.alert.accept()
+            # await short_sleep(5)
             return True
         except Exception as e:
+            print("THERE IS ERROR WHILE ANSWERING")
             print(e)
             return False
     
@@ -51,6 +58,7 @@ class AnswerBot(NaverKinBot):
         await short_sleep(5)
         data = {}
         data['question_link'] = question['question_link']
+        data['question_bot_username'] = question['question_bot_username']
         if self.mode == 0:
             # FROM ANSWERBOT_ADVERTISEMENT TO QUESTIONBOT FOR ANSWER SELECTION
             data['respondent_url'] = self.account['account_url']

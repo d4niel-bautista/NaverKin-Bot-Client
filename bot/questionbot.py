@@ -60,7 +60,7 @@ class QuestionBot(NaverKinBot):
     async def send_question_link(self, driver: uc.Chrome):
         await short_sleep(5)
         question_url = driver.current_url
-        await send_notification(send_to="AnswerBot_Exposure", data={"question_link": question_url})
+        await send_notification(send_to="AnswerBot_Exposure", data={"question_link": question_url, "question_bot_username": self.account["username"]})
         print("SENT QUESTION LINK NOTIFICATION TO AnswerBot_Exposure")
 
     async def select_answer(self, driver: uc.Chrome, answer_selection: dict):
