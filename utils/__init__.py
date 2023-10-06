@@ -3,3 +3,4 @@ from .clean_question_content import clean_question_content
 from .chrome_browser_version import get_chrome_browser_version
 from .reconnect_modem import reconnect_modem
 from .random_sleep import short_sleep, long_sleep
+from .get_current_public_ip import get_current_public_ip
