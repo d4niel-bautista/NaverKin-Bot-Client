@@ -2,10 +2,11 @@ from .async_worker import AsyncWorker
 import asyncio
 import subprocess
 import undetected_chromedriver as uc
-from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_front, short_sleep
+from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_front, short_sleep, get_current_public_ip
 from .session_manager import load_useragent, load_cookies, logged_in, save_cookies, save_user_agent
 import pyautogui
 import pyperclip
+from networking.service import send_logging_data
 
 class NaverKinBot(AsyncWorker):
     def __init__(self, bot_client_inbound) -> None:
@@ -73,6 +74,11 @@ class NaverKinBot(AsyncWorker):
         self.driver = await self.init_driver()
         await reconnect_modem(self.driver)
         await short_sleep(5)
+
+        await send_logging_data(level="info", log=f"{self.account['username']} HAS IP {await get_current_public_ip()}")
+        print("SENT PUBLIC IP ADDRESS TO SERVER FOR LOGGING")
+        await short_sleep(5)
+
         self.driver.get("https://kin.naver.com/")
         await load_cookies(self.driver, self.user_session['cookies'])
         await short_sleep(5)

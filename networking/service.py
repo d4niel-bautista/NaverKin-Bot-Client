@@ -15,5 +15,12 @@ async def send_update_request(table: str, data: dict, filters: dict):
     outbound_msg["filters"] = filters
     await ws_outbound.put(outbound_msg)
 
+async def send_logging_data(level: str, log: str):
+    outbound_msg = {}
+    outbound_msg["type"] = "logging"
+    outbound_msg["level"] = level
+    outbound_msg["log"] = log
+    await ws_outbound.put(outbound_msg)
+
 async def update_account_interactions(question_bot_username: str, answer_bot_username: str):
     await send_update_request(table="account_interactions", data={"username": question_bot_username}, filters={"username": answer_bot_username})
