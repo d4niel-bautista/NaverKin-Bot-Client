@@ -15,11 +15,20 @@ class QuestionBot(NaverKinBot):
             return
         question = await self.data_queue.get()
         print(question)
+
+        self.mode = await self.data_queue.get()
+        print(f"MODE: {self.mode}")
+        if not self.mode or self.mode != "1Q1A" or self.mode != "1Q2A":
+            print(f'HAS RECEIVED NO MODE OR IMPROPER MODE: "{self.mode}". STOPPING PROGRAM')
+            self.running = False
+            return
+
         await self.write_question(self.driver, question['question'])
         await self.send_question_link(self.driver)
         # WAIT FOR ANSWERBOT_ADVERTISEMENT ANSWER NOTIFICATION
         answer_selection = await self.data_queue.get()
         print(answer_selection)
+
         await self.select_answer(self.driver, answer_selection)
         self.running = False
         return
@@ -60,8 +69,12 @@ class QuestionBot(NaverKinBot):
     async def send_question_link(self, driver: uc.Chrome):
         await short_sleep(5)
         question_url = driver.current_url
-        await send_notification(send_to="AnswerBot_Exposure", data={"question_link": question_url, "question_bot_username": self.account["username"]})
-        print("SENT QUESTION LINK NOTIFICATION TO AnswerBot_Exposure")
+        if self.mode == "1Q1A":
+            await send_notification(send_to="AnswerBot_Advertisement", data={"question_link": question_url, "question_bot_username": self.account["username"]})
+            print("SENT QUESTION LINK NOTIFICATION TO AnswerBot_Advertisement")
+        elif self.mode == "1Q2A":
+            await send_notification(send_to="AnswerBot_Exposure", data={"question_link": question_url, "question_bot_username": self.account["username"]})
+            print("SENT QUESTION LINK NOTIFICATION TO AnswerBot_Exposure")
 
     async def select_answer(self, driver: uc.Chrome, answer_selection: dict):
         await short_sleep(5)
