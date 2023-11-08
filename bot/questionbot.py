@@ -18,7 +18,7 @@ class QuestionBot(NaverKinBot):
 
         self.mode = await self.data_queue.get()
         print(f"MODE: {self.mode}")
-        if not self.mode or self.mode != "1Q1A" or self.mode != "1Q2A":
+        if not self.mode or (self.mode != "1Q1A" and self.mode != "1Q2A"):
             print(f'HAS RECEIVED NO MODE OR IMPROPER MODE: "{self.mode}". STOPPING PROGRAM')
             self.running = False
             return
