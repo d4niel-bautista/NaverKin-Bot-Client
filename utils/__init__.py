@@ -6,3 +6,4 @@ from .random_sleep import short_sleep, long_sleep
 from .get_current_public_ip import get_current_public_ip
 from .check_for_links import text_has_links
 from .check_prohibited_words import has_prohibited_words
+from .chatgpt_func import generate_text
