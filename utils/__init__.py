@@ -4,3 +4,5 @@ from .chrome_browser_version import get_chrome_browser_version
 from .reconnect_modem import reconnect_modem
 from .random_sleep import short_sleep, long_sleep
 from .get_current_public_ip import get_current_public_ip
+from .check_for_links import text_has_links
+from .check_prohibited_words import has_prohibited_words
