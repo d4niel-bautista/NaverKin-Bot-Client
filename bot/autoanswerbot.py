@@ -5,6 +5,9 @@ import asyncio
 from bs4 import BeautifulSoup
 import pyperclip
 import pyautogui
+from selenium.common import NoAlertPresentException
+from networking.service import save_request
+from datetime import datetime
 
 class AutoanswerBot(NaverKinBot):
     def __init__(self, queues) -> None:
@@ -19,18 +22,29 @@ class AutoanswerBot(NaverKinBot):
         self.prompt_configs = await self.data_queue.get()
         print(self.prompt_configs)
         await short_sleep(5)
-        self.driver.execute_script("""document.querySelector("li._onlyTitle a[class^='type_title _onlyTitleTypeBtn']").click()""")
-        await asyncio.sleep(1)
-        self.driver.execute_script("""document.querySelector("li._recent a._sort_option").click()""")
-        await asyncio.sleep(1)
-        question_link = await self.get_first_question(self.driver)
-        if not self.stop:
-            await self.write_answer(driver=self.driver, question_link=question_link)
-        while self.answers_count < self.configs["answers_per_day"] and self.stop == False:
-            pass
+        while self.stop == False:
+            if self.reached_id_limit or self.answers_count >= self.configs["answers_per_day"]:
+                print(f"IN COOLDOWN\nID LIMIT: {self.reached_id_limit}\nANSWER COUNT: {self.answers_count}/{self.configs['answers_per_day']}")
+                await long_sleep(self.configs["cooldown"])
+                self.reached_id_limit = False
+                self.answers_count = 0
+            if self.stop:
+                break
+            question_link = await self.get_first_question(self.driver)
+            if await self.write_answer(driver=self.driver, question_link=question_link):
+                self.answers_count += 1
+            await long_sleep(self.configs["page_refresh"])
+        print("STOPPING PROGRAM")
+        self.running = False
+        return
     
     async def get_first_question(self, driver: uc.Chrome):
         driver.get('https://kin.naver.com/')
+        self.handle_alerts(driver=driver)
+        await asyncio.sleep(2)
+        self.driver.execute_script("""document.querySelector("li._onlyTitle a[class^='type_title _onlyTitleTypeBtn']").click()""")
+        await asyncio.sleep(1)
+        self.driver.execute_script("""document.querySelector("li._recent a._sort_option").click()""")
         await asyncio.sleep(1)
         first_question = driver.find_element('xpath', '//div[@id="questionListTypeTitle"]/div[1]')
         soup = BeautifulSoup(first_question.get_attribute('outerHTML'), 'lxml').find('div', class_ = 'answer_box')
@@ -38,18 +52,22 @@ class AutoanswerBot(NaverKinBot):
             if not await has_prohibited_words(text=soup.find('span', {'class': 'tit_txt'}).text, prohibited_words=self.prompt_configs['prohibited_words']):
                 link = soup.find('a', {'class': '_first_focusable_link'})['href'].strip()
                 if link:
-                    print("GOT VALID QUESTION LINK")
+                    print("GOT VALID QUESTION")
                     return link
+        print("NO VALID QUESTION")
+        await long_sleep(120)
         return await self.get_first_question(driver=driver)
     
     async def write_answer(self, driver: uc.Chrome, question_link: str):
         print("STARTS ANSWERING")
-        driver.get('https://kin.naver.com' + question_link)
-        await bring_browser_to_front()
-        pyautogui.press('esc')
+        question_link = 'https://kin.naver.com' + question_link
+        driver.get(question_link)
         await asyncio.sleep(1)
         await self.handle_alerts(driver=driver)
         await self.close_popups(driver=driver)
+        await asyncio.sleep(5)
+        await bring_browser_to_front()
+        pyautogui.press('esc')
         await short_sleep(10)
         question_content = driver.find_element('xpath', '//*[@id="content"]/div[1]/div/div[1]')
         soup = BeautifulSoup(question_content.get_attribute('outerHTML'), 'lxml')
@@ -77,15 +95,24 @@ class AutoanswerBot(NaverKinBot):
         except:
             print("can't click article element")
         pyautogui.hotkey('ctrl', 'v')
+        await long_sleep(self.configs['submit_delay'])
+        if self.reached_id_limit or self.stop:
+            return False
+        driver.execute_script("document.querySelector('#answerRegisterButton').click()")
+        await self.handle_alerts(driver=driver)
+        await save_request(table='naverkin_answer_responses', data={'question_url': question_link, 'type': "autoanswer", 'content': response, 'status': 1, 'username': self.account['username'], 'postscript': self.prompt_configs['postscript'], 'date_answered': datetime.now().isoformat()})
+        print("SAVED ANSWER RESPONSE TO DATABASE")
+        return True
     
     async def handle_alerts(self, driver: uc.Chrome):
         try:
             alert = driver.switch_to.alert
             if "등급에서 하루에 등록할 수 있는 답변 개수는" in alert.text:
                 self.reached_id_limit = True
-                self.stop = True
                 alert.accept()
             else:
                 alert.accept()
-        except:
-            pass
+        except NoAlertPresentException as e:
+            print("No alert box found")
+        except Exception as e:
+            print("HANDLE ALERT ERROR: " + e)
