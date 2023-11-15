@@ -5,3 +5,4 @@ pywin32
 python-dotenv
 pyautogui
 openai==0.28
+beautifulsoup4
