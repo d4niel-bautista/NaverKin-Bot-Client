@@ -24,6 +24,8 @@ class WebsocketClient():
         try:
             while True:
                 outbound_msg = await self.ws_outbound.get()
+                outbound_msg["invokedRouteKey"] = "processMessage"
+                outbound_msg["client_id"] = self.client_id
                 await websocket.send(json.dumps(outbound_msg))
         except Exception as e:
             print(e)
