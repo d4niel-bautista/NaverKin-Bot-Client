@@ -12,20 +12,20 @@ async def start():
     server = args.s
     if args.bt == 'aa':
         bot = AnswerBot(bot_client_inbound, mode=0)
-        client_id = "AnswerBot_Advertisement"
-        print('STARTING ANSWERBOT_ADVERTISEMENT')
+        client_id = "answerbot_advertisement"
+        print('ANSWERBOT_ADVERTISEMENT STANDBY')
     elif args.bt == 'ae':
         bot = AnswerBot(bot_client_inbound, mode=1)
-        client_id = "AnswerBot_Exposure"
-        print('STARTING ANSWERBOT_EXPOSURE')
+        client_id = "answerbot_exposure"
+        print('ANSWERBOT_EXPOSURE STANDBY')
     elif args.bt == 'au':
         bot = AutoanswerBot(bot_client_inbound)
-        client_id = "AutoanswerBot"
-        print('STARTING AUTOANSWERBOT')
+        client_id = "autoanswerbot"
+        print('AUTOANSWERBOT STANDBY')
     elif args.bt == 'q':
         bot = QuestionBot(bot_client_inbound)
-        client_id = "QuestionBot"
-        print('STARTING QUESTIONBOT')
+        client_id = "questionbot"
+        print('QUESTIONBOT STANDBY')
     ws_client = WebsocketClient(server, client_id, bot_client_inbound, ws_outbound)
     await asyncio.gather(bot.start(), ws_client.start())
 

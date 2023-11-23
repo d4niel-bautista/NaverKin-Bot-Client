@@ -65,9 +65,9 @@ class AnswerBot(NaverKinBot):
         if self.mode == 0:
             # FROM ANSWERBOT_ADVERTISEMENT TO QUESTIONBOT FOR ANSWER SELECTION
             data['respondent_url'] = self.account['account_url']
-            await send_notification(send_to="QuestionBot", data=data)
+            await send_notification(send_to="questionbot", data=data)
             print("SENT NOTIFICATION TO QUESTIONBOT FOR ANSWER SELECTION")
         elif self.mode == 1:
             # FROM ANSWERBOT_EXPOSURE TO ANSWERBOT_ADVERTISEMENT
-            await send_notification(send_to="AnswerBot_Advertisement", data=data)
+            await send_notification(send_to="answerbot_advertisement", data=data)
             print("SENT NOTIFICATION TO ANSWERBOT_ADVERTISEMENT")

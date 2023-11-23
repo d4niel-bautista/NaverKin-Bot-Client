@@ -70,11 +70,11 @@ class QuestionBot(NaverKinBot):
         await short_sleep(5)
         question_url = driver.current_url
         if self.mode == "1Q1A":
-            await send_notification(send_to="AnswerBot_Advertisement", data={"question_link": question_url, "question_bot_username": self.account["username"]})
-            print("SENT QUESTION LINK NOTIFICATION TO AnswerBot_Advertisement")
+            await send_notification(send_to="answerbot_advertisement", data={"question_link": question_url, "question_bot_username": self.account["username"]})
+            print("SENT QUESTION LINK NOTIFICATION TO ANSWERBOT_ADVERTISEMENT")
         elif self.mode == "1Q2A":
-            await send_notification(send_to="AnswerBot_Exposure", data={"question_link": question_url, "question_bot_username": self.account["username"]})
-            print("SENT QUESTION LINK NOTIFICATION TO AnswerBot_Exposure")
+            await send_notification(send_to="answerbot_exposure", data={"question_link": question_url, "question_bot_username": self.account["username"]})
+            print("SENT QUESTION LINK NOTIFICATION TO ANSWERBOT_EXPOSURE")
 
     async def select_answer(self, driver: uc.Chrome, answer_selection: dict):
         await short_sleep(5)

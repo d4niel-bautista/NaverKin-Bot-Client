@@ -30,7 +30,8 @@ class WebsocketClient():
             return await self.start()
 
     async def start(self):
-        async with websockets.connect(f"ws://{self.server_addr}:8000/{self.client_id}") as websocket:
+        websocket_endpoint = f"{self.server_addr}?bot={self.client_id}"
+        async with websockets.connect(websocket_endpoint) as websocket:
             asyncio.create_task(self.receive_message(websocket))
             asyncio.create_task(self.send_message(websocket))
             await asyncio.Future()
