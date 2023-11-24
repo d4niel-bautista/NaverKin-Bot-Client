@@ -7,3 +7,4 @@ from .get_current_public_ip import get_current_public_ip
 from .check_for_links import text_has_links
 from .check_prohibited_words import has_prohibited_words
 from .chatgpt_func import generate_text
+from .answer_registered import check_answer_registered
