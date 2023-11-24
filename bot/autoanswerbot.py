@@ -102,7 +102,7 @@ class AutoanswerBot(NaverKinBot):
 
         await short_sleep(10)
         account_url = self.account["account_url"].split("naver.com")[-1]
-        if await check_answer_registered(driver=self.driver, question_link=question_link, account_url=account_url):
+        if await check_answer_registered(driver=self.driver, question_link=question_link, account_url=account_url, handle_alerts=self.handle_alerts):
             await save_answer_response(question_url=question_link, type="autoanswer", content=response, username=self.account["username"], postscript=self.prompt_configs['postscript'])
             print("SAVED ANSWER RESPONSE TO DATABASE")
             return True
