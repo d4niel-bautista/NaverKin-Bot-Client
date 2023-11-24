@@ -1,13 +1,12 @@
 from bot import NaverKinBot
 import undetected_chromedriver as uc
-from utils import short_sleep, long_sleep, bring_browser_to_front, text_has_links, has_prohibited_words, clean_question_content, generate_text
+from utils import short_sleep, long_sleep, bring_browser_to_front, text_has_links, has_prohibited_words, clean_question_content, generate_text, check_answer_registered
 import asyncio
 from bs4 import BeautifulSoup
 import pyperclip
 import pyautogui
 from selenium.common import NoAlertPresentException
-from networking.service import save_request
-from datetime import datetime
+from networking.service import save_answer_response
 
 class AutoanswerBot(NaverKinBot):
     def __init__(self, queues) -> None:
@@ -40,7 +39,7 @@ class AutoanswerBot(NaverKinBot):
     
     async def get_first_question(self, driver: uc.Chrome):
         driver.get('https://kin.naver.com/')
-        self.handle_alerts(driver=driver)
+        await self.handle_alerts(driver=driver)
         await asyncio.sleep(2)
         self.driver.execute_script("""document.querySelector("li._onlyTitle a[class^='type_title _onlyTitleTypeBtn']").click()""")
         await asyncio.sleep(1)
@@ -100,9 +99,16 @@ class AutoanswerBot(NaverKinBot):
             return False
         driver.execute_script("document.querySelector('#answerRegisterButton').click()")
         await self.handle_alerts(driver=driver)
-        await save_request(table='naverkin_answer_responses', data={'question_url': question_link, 'type': "autoanswer", 'content': response, 'status': 1, 'username': self.account['username'], 'postscript': self.prompt_configs['postscript'], 'date_answered': datetime.now().isoformat()})
-        print("SAVED ANSWER RESPONSE TO DATABASE")
-        return True
+
+        await short_sleep(10)
+        account_url = self.account["account_url"].split("naver.com")[-1]
+        if await check_answer_registered(driver=self.driver, question_link=question_link, account_url=account_url):
+            await save_answer_response(question_url=question_link, type="autoanswer", content=response, username=self.account["username"], postscript=self.prompt_configs['postscript'])
+            print("SAVED ANSWER RESPONSE TO DATABASE")
+            return True
+        else:
+            print("ANSWER IS NOT REGISTERED")
+            return False
     
     async def handle_alerts(self, driver: uc.Chrome):
         try:
