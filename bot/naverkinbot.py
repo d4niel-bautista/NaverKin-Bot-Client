@@ -6,7 +6,8 @@ from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_
 from .session_manager import load_useragent, load_cookies, logged_in, save_cookies, save_user_agent
 import pyautogui
 import pyperclip
-from networking.service import send_logging_data
+from networking.service import send_logging_data, send_update_request
+from bs4 import BeautifulSoup
 
 class NaverKinBot(AsyncWorker):
     def __init__(self, bot_client_inbound) -> None:
@@ -108,6 +109,7 @@ class NaverKinBot(AsyncWorker):
             await save_cookies(self.account["username"], self.driver)
         if not self.user_session["user_agent"] or login_attempts != 0:
             await save_user_agent(self.account["username"], self.driver)
+        await self.get_account_url_and_level(driver=self.driver)
         return True
     
     async def login(self, driver: uc.Chrome):
@@ -149,19 +151,33 @@ class NaverKinBot(AsyncWorker):
         login_btn = driver.find_element('xpath', '//*[@id="log.login"]')
         login_btn.click()
     
+    async def get_account_url_and_level(self, driver: uc.Chrome):
+        driver.get("https://kin.naver.com/myinfo/index.naver")
+        await short_sleep(1)
+        await self.close_popups(driver=driver)
+        await short_sleep(1)
+        account_url = driver.current_url if self.account["account_url"] == "" else self.account["account_url"] if driver.current_url == self.account["account_url"] else ""
+        self.account["account_url"] = account_url
+
+        level_gauge = driver.find_element("xpath", '//div[@id="level_guage"]/strong[@class="my_level"]').get_attribute("outerHTML")
+        soup = BeautifulSoup(level_gauge, "lxml")
+        [i.decompose() for i in soup.find_all('span', {'class' : 'level_number'})]
+        [i.decompose() for i in soup.find_all('a', {'class' : 'guide'})]
+
+        await send_update_request(table="naver_accounts", data={"level": soup.text, "account_url": account_url}, filters={"username": self.account["username"]})
+    
     async def close_popups(self, driver: uc.Chrome):
         await short_sleep(5)
         try:
             popups = driver.find_elements('xpath', '//div[contains(@class, "section_layer")]')
             for popup in popups:
                 if popup.is_displayed():
-                    popup_id = popup.get_attribute('id')
-                    a_close = driver.find_elements('xpath', f'//div[@id="{popup_id}"]//a[@href="#" or contains(@class, "close")]')
-                    btn_close = driver.find_elements('xpath', f'//div[@id="{popup_id}"]//button[@type="button" and contains(@class, "close")]')
+                    a_close = popup.find_elements('xpath', './/a[@href="#" or contains(@class, "close") or .//span[contains(@class, "close")]]')
+                    btn_close = popup.find_elements('xpath', './/button[@type="button" and contains(@class, "close")]')
                     if a_close:
                         driver.execute_script('arguments[0].click();', a_close[0])
                     elif btn_close:
-                        btn_close[0].click()
+                        driver.execute_script('arguments[0].click();', btn_close[0])
                     else:
                         print('Popup has no detected close button element')
                         return False

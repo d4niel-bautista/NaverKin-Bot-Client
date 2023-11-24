@@ -32,16 +32,13 @@ async def save_user_agent(username, driver):
     
 async def logged_in(driver):
     await asyncio.sleep(5)
-    captcha_widget = driver.find_elements('xpath', '//div[@class="captcha_wrap"]')
+    captcha_widget = [i for i in driver.find_elements('xpath', '//div[@class="captcha_wrap"]') if i.is_displayed()]
     if captcha_widget:
-        if captcha_widget[0].is_displayed():
-            return False
-    invalid_login = driver.find_elements('xpath', '//div[@class="login_error_wrap"]')
+        return False
+    invalid_login = [i for i in driver.find_elements('xpath', '//div[@class="login_error_wrap"]') if i.is_displayed()]
     if invalid_login:
-        if invalid_login[0].is_displayed():
-            return False
-    login_btn = driver.find_elements('xpath', '//div[@class="header_gnb__cell"]//a[@id="gnb_login_button"]')
+        return False
+    login_btn = [i for i in driver.find_elements('xpath', '//div[@class="header_gnb__cell"]//a[@id="gnb_login_button"]') if i.is_displayed()]
     if login_btn:
-        if login_btn[0].is_displayed():
-            return False
+        return False
     return True
