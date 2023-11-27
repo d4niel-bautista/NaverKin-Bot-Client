@@ -30,7 +30,7 @@ async def save_request(table: str, data: dict):
     outbound_msg["data"] = data
     await ws_outbound.put(outbound_msg)
 
-async def save_answer_response(question_url: str, type: str, content: str, username: str, postscript:str="", status: int=1, date_answered: datetime=datetime.now().strftime("%Y-%m-%d %H:%M:%S")):
+async def save_answer_response(question_url: str, type: str, content: str, username: str, date_answered: datetime, postscript:str="", status: int=1):
     await save_request(table="naverkin_answer_responses", data={"question_url": question_url, "type": type, "content": content, "username": username, "postscript": postscript, "status": status, "date_answered": date_answered})
 
 async def update_account_interactions(question_bot_username: str, answer_bot_username: str):

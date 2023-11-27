@@ -8,6 +8,7 @@ import pyautogui
 import pyperclip
 from networking.service import send_logging_data, send_update_request
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 class NaverKinBot(AsyncWorker):
     def __init__(self, bot_client_inbound) -> None:
@@ -103,6 +104,7 @@ class NaverKinBot(AsyncWorker):
             continue
         
         print(f"{self.account['username']} LOGGED IN")
+        await send_update_request(table="naver_accounts", data={"last_login": f"{await get_current_public_ip()} {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"}, filters={"username": self.account["username"]})
         await short_sleep(5)
         await self.close_popups(self.driver)
         if not self.user_session["cookies"] or login_attempts != 0:
