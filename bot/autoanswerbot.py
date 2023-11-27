@@ -51,7 +51,7 @@ class AutoanswerBot(NaverKinBot):
             if not await has_prohibited_words(text=soup.find('span', {'class': 'tit_txt'}).text, prohibited_words=self.prompt_configs['prohibited_words']):
                 link = soup.find('a', {'class': '_first_focusable_link'})['href'].strip()
                 if link:
-                    print("GOT VALID QUESTION")
+                    print(f"GOT VALID QUESTION {link}")
                     return link
         print("NO VALID QUESTION")
         await long_sleep(120)
@@ -97,8 +97,11 @@ class AutoanswerBot(NaverKinBot):
         await long_sleep(self.configs['submit_delay'])
         if self.reached_id_limit or self.stop:
             return False
-        driver.execute_script("document.querySelector('#answerRegisterButton').click()")
-        await self.handle_alerts(driver=driver)
+        try:
+            driver.execute_script("document.querySelector('#answerRegisterButton').click()")
+            await self.handle_alerts(driver=driver)
+        except:
+            print("can not click answer submit")
 
         await short_sleep(10)
         account_url = self.account["account_url"].split("naver.com")[-1]
