@@ -8,6 +8,7 @@ import pyautogui
 import pyperclip
 from networking.service import send_logging_data, send_update_request
 from bs4 import BeautifulSoup
+from selenium.common import NoAlertPresentException
 from datetime import datetime
 
 class NaverKinBot(AsyncWorker):
@@ -188,3 +189,15 @@ class NaverKinBot(AsyncWorker):
             print("No popup or popup can't be closed")
             return False
     
+    async def handle_alerts(self, driver: uc.Chrome):
+        try:
+            alert = driver.switch_to.alert
+            if "등급에서 하루에 등록할 수 있는 답변 개수는" in alert.text:
+                self.reached_id_limit = True
+                alert.accept()
+            else:
+                alert.accept()
+        except NoAlertPresentException as e:
+            print("No alert box found")
+        except Exception as e:
+            print("HANDLE ALERT ERROR: " + e)

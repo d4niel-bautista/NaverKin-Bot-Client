@@ -5,7 +5,6 @@ import asyncio
 from bs4 import BeautifulSoup
 import pyperclip
 import pyautogui
-from selenium.common import NoAlertPresentException
 from datetime import datetime
 from networking.service import save_answer_response
 
@@ -113,16 +112,3 @@ class AutoanswerBot(NaverKinBot):
         else:
             print("ANSWER IS NOT REGISTERED")
             return False
-    
-    async def handle_alerts(self, driver: uc.Chrome):
-        try:
-            alert = driver.switch_to.alert
-            if "등급에서 하루에 등록할 수 있는 답변 개수는" in alert.text:
-                self.reached_id_limit = True
-                alert.accept()
-            else:
-                alert.accept()
-        except NoAlertPresentException as e:
-            print("No alert box found")
-        except Exception as e:
-            print("HANDLE ALERT ERROR: " + e)
