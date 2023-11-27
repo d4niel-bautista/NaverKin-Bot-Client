@@ -1,6 +1,8 @@
 import asyncio
 
 async def check_answer_registered(driver, question_link: str, account_url: str, handle_alerts):
+    if not account_url:
+        return False
     driver.get(question_link)
     await handle_alerts(driver)
     await asyncio.sleep(5)
