@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import pyperclip
 import pyautogui
 from datetime import datetime
-from networking.service import save_answer_response
+from networking.service import save_answer_response, get_answer_response
 
 class AutoanswerBot(NaverKinBot):
     def __init__(self, queues) -> None:
@@ -107,8 +107,20 @@ class AutoanswerBot(NaverKinBot):
         account_url = self.account["account_url"].split("naver.com")[-1]
         if await check_answer_registered(driver=self.driver, question_link=question_link, account_url=account_url, handle_alerts=self.handle_alerts):
             await save_answer_response(question_url=question_link, type="autoanswer", content=response, username=self.account["username"], postscript=self.prompt_configs['postscript'], date_answered=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-            print("SAVED ANSWER RESPONSE TO DATABASE")
-            return True
+            save_attempts = 0
+            while True:
+                if save_attempts >= 3:
+                    print("ERROR SAVING ANSWER RESPONSE TO DATABASE")
+                    return False
+                await asyncio.sleep(5)
+                await get_answer_response(filters={"question_url": question_link, "username": self.account["username"], "type": "autoanswer"})
+                saved_answer_response = await self.data_queue.get()
+                if saved_answer_response["question_url"] == question_link and saved_answer_response["username"] == self.account["username"] and saved_answer_response["type"] == "autoanswer":
+                    print("SAVED ANSWER RESPONSE TO DATABASE")
+                    return True
+                else:
+                    await save_answer_response(question_url=question_link, type="autoanswer", content=response, username=self.account["username"], postscript=self.prompt_configs['postscript'], date_answered=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                    save_attempts += 1
         else:
             print("ANSWER IS NOT REGISTERED")
             return False

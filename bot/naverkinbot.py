@@ -157,10 +157,10 @@ class NaverKinBot(AsyncWorker):
     async def get_account_url_and_level(self, driver: uc.Chrome):
         driver.get("https://kin.naver.com/myinfo/index.naver")
         await short_sleep(1)
+        account_url = driver.current_url
+        self.account["account_url"] = account_url
         await self.close_popups(driver=driver)
         await short_sleep(1)
-        account_url = driver.current_url if self.account["account_url"] == "" else self.account["account_url"] if driver.current_url == self.account["account_url"] else ""
-        self.account["account_url"] = account_url
 
         level_gauge = driver.find_element("xpath", '//div[@id="level_guage"]/strong[@class="my_level"]').get_attribute("outerHTML")
         soup = BeautifulSoup(level_gauge, "lxml")

@@ -8,6 +8,13 @@ async def send_notification(send_to: str, data: dict):
     outbound_msg["data"] = data
     await ws_outbound.put(outbound_msg)
 
+async def send_get_request(table: str, filters: dict):
+    outbound_msg = {}
+    outbound_msg["type"] = "get"
+    outbound_msg["table"] = table
+    outbound_msg["filters"] = filters
+    await ws_outbound.put(outbound_msg)
+
 async def send_update_request(table: str, data: dict, filters: dict):
     outbound_msg = {}
     outbound_msg["type"] = "update"
@@ -35,3 +42,6 @@ async def save_answer_response(question_url: str, type: str, content: str, usern
 
 async def update_account_interactions(question_bot_username: str, answer_bot_username: str):
     await send_update_request(table="account_interactions", data={"username": question_bot_username}, filters={"username": answer_bot_username})
+
+async def get_answer_response(filters: dict):
+    await send_get_request(table="naverkin_answer_responses", filters=filters)
