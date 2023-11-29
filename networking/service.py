@@ -40,6 +40,12 @@ async def save_request(table: str, data: dict):
 async def save_answer_response(question_url: str, type: str, content: str, username: str, date_answered: datetime, postscript:str="", status: int=1):
     await save_request(table="naverkin_answer_responses", data={"question_url": question_url, "type": type, "content": content, "username": username, "postscript": postscript, "status": status, "date_answered": date_answered})
 
+async def save_question_post(question_url: str, title: str, author: str, respondent: str, date_posted: datetime, status: int=0):
+    await save_request(table="naverkin_question_posts", data={"url": question_url, "title": title, "author": author, "date_posted": date_posted, "respondent": respondent, "status": status})
+
+async def save_login(username: str, ip_address: str, login_timestamp: datetime):
+    await save_request(table="logins", data={"username": username, "ip_address": ip_address, "login_timestamp": login_timestamp})
+
 async def update_account_interactions(question_bot_username: str, answer_bot_username: str):
     await send_update_request(table="account_interactions", data={"username": question_bot_username}, filters={"username": answer_bot_username})
 

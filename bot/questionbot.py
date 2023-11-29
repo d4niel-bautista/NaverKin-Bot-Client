@@ -3,7 +3,8 @@ import undetected_chromedriver as uc
 from utils import short_sleep, long_sleep, bring_browser_to_front
 import pyperclip
 import pyautogui
-from networking.service import send_notification
+from networking.service import send_notification, save_question_post
+from datetime import datetime
 
 class QuestionBot(NaverKinBot):
     def __init__(self, queues) -> None:
@@ -23,7 +24,19 @@ class QuestionBot(NaverKinBot):
             self.running = False
             return
 
-        await self.write_question(self.driver, question['question'])
+        post_attempts = 0
+        while True:
+            if post_attempts >= 3:
+                print("ERROR WITH WRITING QUESTION")
+                return False
+            await self.write_question(self.driver, question['question'])
+            if "qna/detail.naver" in self.driver.current_url:
+                break
+            post_attempts += 1
+            print("RETRYING TO WRITE QUESTION")
+
+        await save_question_post(question_url=self.driver.current_url, title=question['question']['title'], author=self.account['username'], respondent="", date_posted=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        await short_sleep(5)
         await self.send_question_link(self.driver)
         # WAIT FOR ANSWERBOT_ADVERTISEMENT ANSWER NOTIFICATION
         answer_selection = await self.data_queue.get()
@@ -37,6 +50,7 @@ class QuestionBot(NaverKinBot):
         print("WILL START WRITING A QUESTION")
         await short_sleep(5)
         driver.get('https://kin.naver.com/qna/question.naver')
+        await self.handle_alerts(self.driver)
         await self.close_popups(self.driver)
         await short_sleep(10)
         pyperclip.copy(question['title'])

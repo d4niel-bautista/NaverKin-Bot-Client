@@ -6,7 +6,7 @@ from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_
 from .session_manager import load_useragent, load_cookies, logged_in, save_cookies, save_user_agent
 import pyautogui
 import pyperclip
-from networking.service import send_logging_data, send_update_request
+from networking.service import send_logging_data, send_update_request, save_login
 from bs4 import BeautifulSoup
 from selenium.common import NoAlertPresentException
 from datetime import datetime
@@ -105,7 +105,10 @@ class NaverKinBot(AsyncWorker):
             continue
         
         print(f"{self.account['username']} LOGGED IN")
-        await send_update_request(table="naver_accounts", data={"last_login": f"{await get_current_public_ip()} {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"}, filters={"username": self.account["username"]})
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        await save_login(username=self.account['username'], ip_address=await get_current_public_ip(), login_timestamp=now)
+        await short_sleep(5)
+        await send_update_request(table="naver_accounts", data={"last_login": f"{await get_current_public_ip()} {now}"}, filters={"username": self.account["username"]})
         await short_sleep(5)
         await self.close_popups(self.driver)
         if not self.user_session["cookies"] or login_attempts != 0:
