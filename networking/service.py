@@ -51,3 +51,9 @@ async def update_account_interactions(question_bot_username: str, answer_bot_use
 
 async def get_answer_response(filters: dict):
     await send_get_request(table="naverkin_answer_responses", filters=filters)
+
+async def websocket_connect():
+    await ws_outbound.put("connect")
+
+async def websocket_disconnect():
+    await ws_outbound.put("disconnect")
