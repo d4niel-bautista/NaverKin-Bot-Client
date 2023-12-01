@@ -1,5 +1,5 @@
-import websockets
-import websockets.exceptions
+from websockets import client
+from websockets.exceptions import ConnectionClosed
 import asyncio
 import json
 
@@ -15,8 +15,14 @@ class WebsocketClient():
         self.disable_reconnection = False
     
     async def connect(self):
-        websocket_endpoint = f"{self.server_addr}?bot={self.client_id}"
-        self.websocket = await websockets.connect(websocket_endpoint)
+        try:
+            websocket_endpoint = f"{self.server_addr}?bot={self.client_id}"
+            self.websocket = await client.connect(websocket_endpoint)
+            print(f"{self.client_id.upper()} CONNECTED")
+        except asyncio.exceptions.CancelledError as e:
+            print(f"Connecting error: {e}")
+            await asyncio.sleep(10)
+            return await self.connect()
     
     async def reconnect(self):
         if self.is_reconnecting:
@@ -35,16 +41,15 @@ class WebsocketClient():
                 return
 
             self.is_reconnecting = True
-            try:
-                await self.websocket.close()
-                await self.connect()
-            finally:
-                self.is_reconnecting = False
+            await self.websocket.close()
+            await asyncio.sleep(5)
+            await self.connect()
+            self.is_reconnecting = False
     
     async def receive_message(self):
         while True:
             try:
-                if self.disable_reconnection:
+                if self.disable_reconnection or not self.websocket or self.websocket.closed:
                     await asyncio.sleep(1)
                     continue
                 
@@ -52,7 +57,7 @@ class WebsocketClient():
                 if type(inbound_msg) is str:
                     inbound_msg = json.loads(inbound_msg)
                 await self.bot_client_inbound.put(inbound_msg)
-            except websockets.exceptions.ConnectionClosed as e:
+            except ConnectionClosed as e:
                 print(f"WebSocket connection closed: {e}")
                 await self.reconnect()
             except Exception as e:
@@ -77,7 +82,7 @@ class WebsocketClient():
                 outbound_msg["action"] = "processMessage"
                 outbound_msg["client_id"] = self.client_id
                 await self.websocket.send(json.dumps(outbound_msg))
-            except websockets.exceptions.ConnectionClosed as e:
+            except ConnectionClosed as e:
                 print(f"WebSocket connection closed: {e}")
                 await self.reconnect()
             except Exception as e:

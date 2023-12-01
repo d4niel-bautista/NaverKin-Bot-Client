@@ -32,6 +32,7 @@ class AutoanswerBot(NaverKinBot):
             question_link = await self.get_first_question(self.driver)
             if await self.write_answer(driver=self.driver, question_link=question_link):
                 self.answers_count += 1
+            print(f"ANSWERED {self.answers_count}/{self.configs['answers_per_day']}")
             await long_sleep(self.configs["page_refresh"])
         print("STOPPING PROGRAM")
         self.running = False
