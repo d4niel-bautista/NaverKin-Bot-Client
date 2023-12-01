@@ -57,3 +57,9 @@ async def websocket_connect():
 
 async def websocket_disconnect():
     await ws_outbound.put("disconnect")
+
+async def update_state(state: int):
+    outbound_msg = {}
+    outbound_msg["type"] = "update_state"
+    outbound_msg["update_state"] = state
+    await ws_outbound.put(outbound_msg)

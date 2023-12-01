@@ -6,7 +6,7 @@ from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_
 from .session_manager import load_useragent, load_cookies, logged_in, save_cookies, save_user_agent
 import pyautogui
 import pyperclip
-from networking.service import send_logging_data, send_update_request, save_login, websocket_connect, websocket_disconnect
+from networking.service import send_logging_data, send_update_request, save_login, websocket_connect, websocket_disconnect, update_state
 from bs4 import BeautifulSoup
 from selenium.common import NoAlertPresentException
 from datetime import datetime
@@ -74,10 +74,15 @@ class NaverKinBot(AsyncWorker):
         self.configs = await self.data_queue.get()
         print(self.configs)
 
+        await update_state(state=2)
+
         self.driver = await self.init_driver()
         await websocket_disconnect()
         await reconnect_modem(self.driver)
         await websocket_connect()
+
+        await update_state(state=2)
+        
         await short_sleep(30)
 
         await send_logging_data(level="info", log=f"{self.account['username']} HAS IP {await get_current_public_ip()}")
