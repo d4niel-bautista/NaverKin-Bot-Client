@@ -6,6 +6,8 @@ import json
 class WebsocketClient():
     def __init__(self, server_addr, client_id, bot_client_inbound, ws_outbound) -> None:
         self.client_id = client_id
+        self.connection_id = ""
+        self.group_id = ""
         self.bot_client_inbound = bot_client_inbound
         self.ws_outbound = ws_outbound
         self.server_addr = server_addr
@@ -16,7 +18,7 @@ class WebsocketClient():
     
     async def connect(self):
         try:
-            websocket_endpoint = f"{self.server_addr}?bot={self.client_id}"
+            websocket_endpoint = f"{self.server_addr}?bot={self.client_id}&group_id={self.group_id}"
             self.websocket = await client.connect(websocket_endpoint)
             print(f"{self.client_id.upper()} CONNECTED")
         except asyncio.exceptions.CancelledError as e:
@@ -47,6 +49,13 @@ class WebsocketClient():
             self.is_reconnecting = False
     
     async def receive_message(self):
+        await self.websocket.send(json.dumps({"action": "processMessage", "type": "get_connection_info", "client_id": self.client_id}))
+        connection_info = await self.websocket.recv()
+        connection_info = json.loads(connection_info)
+        print(connection_info)
+        if "connection_info" in connection_info:
+            self.group_id = connection_info["connection_info"]["group_id"]
+            self.connection_id = connection_info["connection_info"]["connection_id"]
         while True:
             try:
                 if self.disable_reconnection or not self.websocket or self.websocket.closed:
@@ -81,6 +90,8 @@ class WebsocketClient():
 
                 outbound_msg["action"] = "processMessage"
                 outbound_msg["client_id"] = self.client_id
+                outbound_msg["group_id"] = self.group_id
+                outbound_msg["connection_id"] = self.connection_id
                 await self.websocket.send(json.dumps(outbound_msg))
             except ConnectionClosed as e:
                 print(f"WebSocket connection closed: {e}")
