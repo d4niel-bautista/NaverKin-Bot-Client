@@ -2,6 +2,7 @@ from websockets import client
 from websockets.exceptions import ConnectionClosed
 import asyncio
 import json
+from networking.service import update_state, get_connection_info
 
 class WebsocketClient():
     def __init__(self, server_addr, client_id, bot_client_inbound, ws_outbound) -> None:
@@ -47,15 +48,10 @@ class WebsocketClient():
             await asyncio.sleep(5)
             await self.connect()
             self.is_reconnecting = False
+            await update_state(state=2)
+            await get_connection_info()
     
     async def receive_message(self):
-        await self.websocket.send(json.dumps({"action": "processMessage", "type": "get_connection_info", "client_id": self.client_id}))
-        connection_info = await self.websocket.recv()
-        connection_info = json.loads(connection_info)
-        print(connection_info)
-        if "connection_info" in connection_info:
-            self.group_id = connection_info["connection_info"]["group_id"]
-            self.connection_id = connection_info["connection_info"]["connection_id"]
         while True:
             try:
                 if self.disable_reconnection or not self.websocket or self.websocket.closed:
@@ -65,6 +61,13 @@ class WebsocketClient():
                 inbound_msg = await self.websocket.recv()
                 if type(inbound_msg) is str:
                     inbound_msg = json.loads(inbound_msg)
+
+                if "connection_info" in inbound_msg:
+                    self.group_id = inbound_msg["connection_info"]["group_id"]
+                    self.connection_id = inbound_msg["connection_info"]["connection_id"]
+                    print(inbound_msg)
+                    continue
+
                 await self.bot_client_inbound.put(inbound_msg)
             except ConnectionClosed as e:
                 print(f"WebSocket connection closed: {e}")
@@ -104,4 +107,5 @@ class WebsocketClient():
         await self.connect()
         receive_task = asyncio.create_task(self.receive_message())
         send_task = asyncio.create_task(self.send_message())
+        await get_connection_info()
         await asyncio.gather(receive_task, send_task)

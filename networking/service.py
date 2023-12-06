@@ -63,3 +63,8 @@ async def update_state(state: int):
     outbound_msg["type"] = "update_state"
     outbound_msg["update_state"] = state
     await ws_outbound.put(outbound_msg)
+
+async def get_connection_info():
+    outbound_msg = {}
+    outbound_msg["type"] = "get_connection_info"
+    await ws_outbound.put(outbound_msg)
