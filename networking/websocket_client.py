@@ -48,8 +48,6 @@ class WebsocketClient():
             await asyncio.sleep(5)
             await self.connect()
             self.is_reconnecting = False
-            await update_state(state=2)
-            await get_connection_info()
     
     async def receive_message(self):
         while True:
