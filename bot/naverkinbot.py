@@ -1,7 +1,7 @@
 from .async_worker import AsyncWorker
 import asyncio
 import subprocess
-import undetected_chromedriver as uc
+from seleniumbase import Driver, undetected
 from utils import get_chrome_browser_version, reconnect_modem, bring_browser_to_front, short_sleep, get_current_public_ip
 from .session_manager import load_useragent, load_cookies, logged_in, save_cookies, save_user_agent
 import pyautogui
@@ -36,26 +36,27 @@ class NaverKinBot(AsyncWorker):
         except:
             pass
 
-        options = uc.ChromeOptions()
-        options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_argument('--start-maximized')
-        options.add_argument('--disable-notifications')
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-popup-blocking")
-        await load_useragent(options=options, useragent=self.user_session['user_agent'])
-        prefs = {"credentials_enable_service": False,
-                "profile.password_manager_enabled": False}
-        options.add_experimental_option("prefs", prefs)
-        while True:
-            try:
-                driver = uc.Chrome(options=options, use_subprocess=True, version_main=await get_chrome_browser_version())
-                driver.maximize_window()
-                pyautogui.press('esc')
-                print("DRIVER INITIALIZED")
-                break
-            except Exception as e:
-                print(e)
-                continue
+        # options = uc.ChromeOptions()
+        # options.add_argument('--disable-blink-features=AutomationControlled')
+        # options.add_argument('--start-maximized')
+        # options.add_argument('--disable-notifications')
+        # options.add_argument("--disable-dev-shm-usage")
+        # options.add_argument("--disable-popup-blocking")
+        # await load_useragent(options=options, useragent=self.user_session['user_agent'])
+        # prefs = {"credentials_enable_service": False,
+        #         "profile.password_manager_enabled": False}
+        # options.add_experimental_option("prefs", prefs)
+        # while True:
+        #     try:
+        #         driver = uc.Chrome(options=options, use_subprocess=True, version_main=await get_chrome_browser_version())
+        #         driver.maximize_window()
+        #         pyautogui.press('esc')
+        #         print("DRIVER INITIALIZED")
+        #         break
+        #     except Exception as e:
+        #         print(e)
+        #         continue
+        driver = Driver(uc=True)
         return driver
 
     async def main(self):
@@ -89,10 +90,10 @@ class NaverKinBot(AsyncWorker):
         print("SENT PUBLIC IP ADDRESS TO SERVER FOR LOGGING")
         await short_sleep(5)
 
-        self.driver.get("https://kin.naver.com/")
+        self.driver.uc_open_with_reconnect("https://kin.naver.com/", 10)
         await load_cookies(self.driver, self.user_session['cookies'])
         await short_sleep(5)
-        self.driver.get("https://kin.naver.com/")
+        self.driver.uc_open_with_reconnect("https://kin.naver.com/", 10)
 
         login_attempts = 0
         while login_attempts <= 2:
@@ -125,16 +126,16 @@ class NaverKinBot(AsyncWorker):
         await self.get_account_url_and_level(driver=self.driver)
         return True
     
-    async def login(self, driver: uc.Chrome):
+    async def login(self, driver: undetected.Chrome):
         await short_sleep(5)
         print("LOGGING IN")
-        driver.get(r'https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com%2F')
+        driver.uc_open_with_reconnect(r'https://nid.naver.com/nidlogin.login?url=https%3A%2F%2Fkin.naver.com%2F', 10)
         await bring_browser_to_front()
         pyautogui.press('esc')
         await self.authenticate(driver)
         await short_sleep(5)
     
-    async def authenticate(self, driver: uc.Chrome):
+    async def authenticate(self, driver: undetected.Chrome):
         await short_sleep(5)
         while True:
             try:
@@ -161,11 +162,10 @@ class NaverKinBot(AsyncWorker):
         await bring_browser_to_front()
         pyautogui.hotkey('ctrl', 'v')
         await short_sleep(5)
-        login_btn = driver.find_element('xpath', '//*[@id="log.login"]')
-        login_btn.click()
+        driver.uc_click("xpath", '//button[@id="log.login" and @type="submit"]')
     
-    async def get_account_url_and_level(self, driver: uc.Chrome):
-        driver.get("https://kin.naver.com/myinfo/index.naver")
+    async def get_account_url_and_level(self, driver: undetected.Chrome):
+        driver.uc_open_with_reconnect("https://kin.naver.com/myinfo/index.naver", 10)
         await short_sleep(1)
         account_url = driver.current_url
         self.account["account_url"] = account_url
@@ -179,7 +179,7 @@ class NaverKinBot(AsyncWorker):
 
         await send_update_request(table="naver_accounts", data={"level": soup.text, "account_url": account_url}, filters={"username": self.account["username"]})
     
-    async def close_popups(self, driver: uc.Chrome):
+    async def close_popups(self, driver: undetected.Chrome):
         await short_sleep(5)
         try:
             popups = driver.find_elements('xpath', '//div[contains(@class, "section_layer")]')
@@ -206,7 +206,7 @@ class NaverKinBot(AsyncWorker):
             print("No popup or popup can't be closed")
             return False
     
-    async def handle_alerts(self, driver: uc.Chrome):
+    async def handle_alerts(self, driver: undetected.Chrome):
         try:
             alert = driver.switch_to.alert
             if "등급에서 하루에 등록할 수 있는 답변 개수는" in alert.text:

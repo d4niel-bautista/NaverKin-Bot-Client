@@ -1,5 +1,5 @@
 from bot import NaverKinBot
-import undetected_chromedriver as uc
+from seleniumbase import Driver, undetected
 from utils import short_sleep, long_sleep, bring_browser_to_front, check_answer_registered
 import pyperclip
 import pyautogui
@@ -29,11 +29,11 @@ class AnswerBot(NaverKinBot):
         self.running = False
         return
 
-    async def answer_question(self, driver: uc.Chrome, question: dict, answer: str) -> bool:
+    async def answer_question(self, driver: undetected.Chrome, question: dict, answer: str) -> bool:
         try:
             await short_sleep(5)
             question_link = question["question_link"] + '&mode=answer'
-            driver.get(question_link)
+            driver.uc_open_with_reconnect(question_link, 10)
             await bring_browser_to_front()
             pyautogui.press('esc')
             pyautogui.press('home')

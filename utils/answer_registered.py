@@ -4,7 +4,7 @@ async def check_answer_registered(driver, question_link: str, account_url: str, 
     try:
         if not account_url:
             return False
-        driver.get(question_link)
+        driver.uc_open_with_reconnect(question_link, 10)
         await handle_alerts(driver)
         await asyncio.sleep(5)
         answer_list = driver.find_element('xpath', '//div[@class="answer-content__list _answerList"]')

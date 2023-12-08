@@ -10,7 +10,7 @@ USER = os.getenv('MODEM_USERNAME')
 PASS = os.getenv('MODEM_PASSWORD')
 
 async def login (driver):
-    driver.get('http://192.168.100.1/')
+    driver.uc_open_with_reconnect('http://192.168.100.1/')
 
     print('Login To Modem')
     await asyncio.sleep(1.8)

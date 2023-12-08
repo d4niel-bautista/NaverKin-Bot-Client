@@ -1,5 +1,5 @@
 from bot import NaverKinBot
-import undetected_chromedriver as uc
+from seleniumbase import Driver, undetected
 from utils import short_sleep, long_sleep, bring_browser_to_front
 import pyperclip
 import pyautogui
@@ -46,10 +46,10 @@ class QuestionBot(NaverKinBot):
         self.running = False
         return
     
-    async def write_question(self, driver: uc.Chrome, question: dict):
+    async def write_question(self, driver: undetected.Chrome, question: dict):
         print("WILL START WRITING A QUESTION")
         await short_sleep(5)
-        driver.get('https://kin.naver.com/qna/question.naver')
+        driver.uc_open_with_reconnect('https://kin.naver.com/qna/question.naver', 10)
         await self.handle_alerts(self.driver)
         await self.close_popups(self.driver)
         await short_sleep(10)
@@ -64,23 +64,20 @@ class QuestionBot(NaverKinBot):
         driver.switch_to.frame(smart_editor_iframe)
         await short_sleep(5)
         pyperclip.copy(question['content'])
-        body_content = driver.find_element('xpath', '/html/body')
-        body_content.click()
+        driver.uc_click('xpath', '/html/body')
         await short_sleep(10)
         await bring_browser_to_front()
         pyautogui.hotkey('ctrl', 'v')
         await short_sleep(10)
         driver.switch_to.parent_frame()
-        submit_btn = driver.find_elements('xpath', '//button[contains(@class, "button_style is_primary _register")]')[0]
-        submit_btn.click()
+        driver.uc_click('xpath', '//button[@class="button_style is_primary _register"]')
         await long_sleep(self.configs['submit_delay'])
-        submit_btn = driver.find_elements('xpath', '//button[contains(@class, "button_style is_primary _register")]')[1]
-        submit_btn.click()
+        driver.uc_click('xpath', '//button[@class="button_style is_primary _register _clickcode:sbm.ok"]')
         await short_sleep(10)
         driver.switch_to.alert.accept()
         await short_sleep(5)
         
-    async def send_question_link(self, driver: uc.Chrome):
+    async def send_question_link(self, driver: undetected.Chrome):
         await short_sleep(5)
         question_url = driver.current_url
         if self.mode == "1Q1A":
@@ -90,9 +87,9 @@ class QuestionBot(NaverKinBot):
             await send_notification(send_to="answerbot_exposure", data={"question_link": question_url, "question_bot_username": self.account["username"]})
             print("SENT QUESTION LINK NOTIFICATION TO ANSWERBOT_EXPOSURE")
 
-    async def select_answer(self, driver: uc.Chrome, answer_selection: dict):
+    async def select_answer(self, driver: undetected.Chrome, answer_selection: dict):
         await short_sleep(5)
-        driver.get(answer_selection['question_link'])
+        driver.uc_open_with_reconnect(answer_selection['question_link'], 10)
         await short_sleep(10)
         answers = driver.find_elements('xpath', '//div[@class="answer-content__item _contentWrap _answer"]')
         for answer in answers:

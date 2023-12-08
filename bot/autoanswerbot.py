@@ -1,5 +1,5 @@
 from bot import NaverKinBot
-import undetected_chromedriver as uc
+from seleniumbase import Driver, undetected
 from utils import short_sleep, long_sleep, bring_browser_to_front, text_has_links, has_prohibited_words, clean_question_content, generate_text, check_answer_registered
 import asyncio
 from bs4 import BeautifulSoup
@@ -38,8 +38,8 @@ class AutoanswerBot(NaverKinBot):
         self.running = False
         return
     
-    async def get_first_question(self, driver: uc.Chrome):
-        driver.get('https://kin.naver.com/')
+    async def get_first_question(self, driver: undetected.Chrome):
+        driver.uc_open_with_reconnect('https://kin.naver.com/', 10)
         await self.handle_alerts(driver=driver)
         await asyncio.sleep(2)
         self.driver.execute_script("""document.querySelector("li._onlyTitle a[class^='type_title _onlyTitleTypeBtn']").click()""")
@@ -58,10 +58,10 @@ class AutoanswerBot(NaverKinBot):
         await long_sleep(120)
         return await self.get_first_question(driver=driver)
     
-    async def write_answer(self, driver: uc.Chrome, question_link: str):
+    async def write_answer(self, driver: undetected.Chrome, question_link: str):
         print("STARTS ANSWERING")
         question_link = 'https://kin.naver.com' + question_link
-        driver.get(question_link)
+        driver.uc_open_with_reconnect(question_link, 10)
         await asyncio.sleep(1)
         await self.handle_alerts(driver=driver)
         await self.close_popups(driver=driver)
@@ -90,8 +90,7 @@ class AutoanswerBot(NaverKinBot):
         await bring_browser_to_front()
         pyautogui.press('home')
         try:
-            textarea = self.driver.find_element('xpath', '//*[@id="smartEditor"]/div/div/div/div[1]/div/section/article')
-            textarea.click()
+            driver.uc_click(selector='//*[@id="smartEditor"]/div/div/div/div[1]/div/section/article', by="xpath")
         except:
             print("can't click article element")
         pyautogui.hotkey('ctrl', 'v')
@@ -103,7 +102,8 @@ class AutoanswerBot(NaverKinBot):
             await self.handle_alerts(driver=driver)
         except:
             print("can not click answer submit")
-
+        await short_sleep(5)
+        await self.close_popups(driver=driver)
         await short_sleep(10)
         account_url = self.account["account_url"].split("naver.com")[-1]
         if await check_answer_registered(driver=self.driver, question_link=question_link, account_url=account_url, handle_alerts=self.handle_alerts):
