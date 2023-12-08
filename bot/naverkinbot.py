@@ -78,6 +78,8 @@ class NaverKinBot(AsyncWorker):
         await update_state(state=2)
 
         self.driver = await self.init_driver()
+
+        await short_sleep(5)
         await websocket_disconnect()
         await reconnect_modem(self.driver)
         await websocket_connect()
