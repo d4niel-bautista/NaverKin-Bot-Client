@@ -185,6 +185,13 @@ class NaverKinBot(AsyncWorker):
             popups = driver.find_elements('xpath', '//div[contains(@class, "section_layer")]')
             for popup in popups:
                 if popup.is_displayed():
+                    popup_id = popup.get_attribute("id")
+                    if "captcha" in popup_id:
+                        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        print(f"CAPTCHA TRIGGERED {now} - {driver.current_url}")
+                        self.stop = True
+                        return False
+
                     a_close = popup.find_elements('xpath', './/a[@href="#" or contains(@class, "close") or .//span[contains(@class, "close")]]')
                     btn_close = popup.find_elements('xpath', './/button[@type="button" and contains(@class, "close")]')
                     if a_close:
