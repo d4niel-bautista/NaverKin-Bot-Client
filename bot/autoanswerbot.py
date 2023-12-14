@@ -73,8 +73,16 @@ class AutoanswerBot(NaverKinBot):
         soup = BeautifulSoup(question_content.get_attribute('outerHTML'), 'lxml')
 
         video_content = soup.find('div', {'class': 'kin_movie_info'})
+        link_content = soup.find('a')
+        image_content = soup.find('img')
         if video_content:
             print('SKIPPED! HAS VIDEO CONTENT' + '\n')
+            return False
+        elif link_content:
+            print('SKIPPED! HAS DETECTED LINK' + '\n')
+            return False
+        elif image_content:
+            print('SKIPPED! HAS DETECTED IMAGE' + '\n')
             return False
         soup_cleaned = await clean_question_content(tag=soup)
         if await text_has_links(soup_cleaned) or await has_prohibited_words(text=soup_cleaned, prohibited_words=self.prompt_configs['prohibited_words']) or self.reached_id_limit:
