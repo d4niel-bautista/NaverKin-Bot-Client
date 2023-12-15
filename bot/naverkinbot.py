@@ -83,9 +83,6 @@ class NaverKinBot(AsyncWorker):
         await websocket_disconnect()
         await reconnect_modem(self.driver)
         await websocket_connect()
-
-        await update_state(state=2)
-        await get_connection_info()
         await short_sleep(30)
 
         await send_logging_data(level="info", log=f"{self.account['username']} HAS IP {await get_current_public_ip()}")
