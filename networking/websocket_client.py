@@ -2,13 +2,14 @@ from websockets import client
 from websockets.exceptions import ConnectionClosed
 import asyncio
 import json
-from networking.service import update_state, get_connection_info
+from networking.service import update_state, get_connection_info, update_autoanswerbot_configs
 
 class WebsocketClient():
-    def __init__(self, server_addr, client_id, bot_client_inbound, ws_outbound) -> None:
+    def __init__(self, server_addr, client_id, bot_client_inbound, ws_outbound, VM_id="") -> None:
         self.client_id = client_id
         self.connection_id = ""
         self.group_id = ""
+        self.VM_id = VM_id
         self.bot_client_inbound = bot_client_inbound
         self.ws_outbound = ws_outbound
         self.server_addr = server_addr
@@ -16,10 +17,13 @@ class WebsocketClient():
         self.reconnect_lock = asyncio.Lock()
         self.is_reconnecting = False
         self.disable_reconnection = False
+        self.account = {}
+        self.prompt_configs = {}
+        self.botconfigs = {}
     
     async def connect(self):
         try:
-            websocket_endpoint = f"{self.server_addr}?bot={self.client_id}&group_id={self.group_id}"
+            websocket_endpoint = f"{self.server_addr}?bot={self.client_id}&group_id={self.group_id}&VM_id={self.VM_id}"
             self.websocket = await client.connect(websocket_endpoint)
             print(f"{self.client_id.upper()} CONNECTED")
         except asyncio.exceptions.CancelledError as e:
@@ -49,6 +53,8 @@ class WebsocketClient():
             await self.connect()
             await update_state(state=2)
             await get_connection_info()
+            if self.client_id == "autoanswerbot":
+                await update_autoanswerbot_configs(account=self.account, prompt_configs=self.prompt_configs, botconfigs=self.botconfigs)
             self.is_reconnecting = False
     
     async def receive_message(self):
@@ -67,6 +73,14 @@ class WebsocketClient():
                     self.connection_id = inbound_msg["connection_info"]["connection_id"]
                     print(inbound_msg)
                     continue
+                
+                if inbound_msg["type"] == "response_data":
+                    if "account_url" in inbound_msg["data"]:
+                        self.account = inbound_msg["data"]
+                    elif "prompt" in inbound_msg["data"]:
+                        self.prompt_configs = inbound_msg["data"]
+                    elif "answers_per_day" in inbound_msg["data"]:
+                        self.botconfigs = inbound_msg["data"]
 
                 await self.bot_client_inbound.put(inbound_msg)
             except ConnectionClosed as e:
