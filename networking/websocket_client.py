@@ -51,10 +51,11 @@ class WebsocketClient():
             await self.websocket.close()
             await asyncio.sleep(5)
             await self.connect()
-            await update_state(state=2)
             await get_connection_info()
-            if self.client_id == "autoanswerbot":
-                await update_autoanswerbot_configs(account=self.account, prompt_configs=self.prompt_configs, botconfigs=self.botconfigs)
+            if len(self.account) > 0:
+                await update_state(state=2)
+                if self.client_id == "autoanswerbot":
+                    await update_autoanswerbot_configs(account=self.account, prompt_configs=self.prompt_configs, botconfigs=self.botconfigs)
             self.is_reconnecting = False
     
     async def receive_message(self):
