@@ -1,39 +1,57 @@
 from bot import NaverKinBot
-from seleniumbase import Driver, undetected
+from seleniumbase import undetected
 from utils import short_sleep, long_sleep, bring_browser_to_front, text_has_links, has_prohibited_words, clean_question_content, generate_text, check_answer_registered
 import asyncio
 from bs4 import BeautifulSoup
 import pyperclip
 import pyautogui
 from datetime import datetime
-from networking.service import save_answer_response, get_answer_response
+from networking.service import save_answer_response, get_answer_response, get_account
 
 class AutoanswerBot(NaverKinBot):
     def __init__(self, queues) -> None:
         self.answers_count = 0
         self.reached_id_limit = False
+        self.account_ids = []
         super().__init__(queues)
 
     async def main(self):
-        if not await super().main():
-            self.running = False
-            return
-        self.prompt_configs = await self.data_queue.get()
-        print(self.prompt_configs)
-        await short_sleep(5)
-        while self.stop == False:
-            if self.reached_id_limit or self.answers_count >= self.configs["answers_per_day"]:
-                print(f"IN COOLDOWN\nID LIMIT: {self.reached_id_limit}\nANSWER COUNT: {self.answers_count}/{self.configs['answers_per_day']}")
-                await long_sleep(self.configs["cooldown"])
-                self.reached_id_limit = False
-                self.answers_count = 0
-            if self.stop:
-                break
-            question_link = await self.get_first_question(self.driver)
-            if await self.write_answer(driver=self.driver, question_link=question_link):
-                self.answers_count += 1
-            print(f"ANSWERED {self.answers_count}/{self.configs['answers_per_day']}")
-            await long_sleep(self.configs["page_refresh"])
+        self.account_ids = await self.data_queue.get()
+        print(self.account_ids)
+
+        for i in range(len(self.account_ids)):
+            if not await super().main():
+                if i + 1 < len(self.account_ids) - 1:
+                    await get_account(self.account_ids[i + 1])
+                    await self.data_queue.put(self.configs)
+                    await self.data_queue.put(self.prompt_configs)
+                    continue
+            
+            self.prompt_configs = await self.data_queue.get()
+            print(self.prompt_configs)
+            await short_sleep(5)
+            while self.running:
+                if self.reached_id_limit or self.answers_count >= self.configs["answers_per_day"] or self.stop:
+                    print(f"STOP: {self.stop}\nID LIMIT: {self.reached_id_limit}\nANSWER COUNT: {self.answers_count}/{self.configs['answers_per_day']}")
+                    print("WILL CHANGE ACCOUNT")
+                    await long_sleep(self.configs["page_refresh"])
+                    self.reached_id_limit = False
+                    self.answers_count = 0
+                    self.stop = False
+
+                    if i + 1 < len(self.account_ids) - 1:
+                        await get_account(self.account_ids[i + 1])
+                        await self.data_queue.put(self.configs)
+                        await self.data_queue.put(self.prompt_configs)
+                        break
+                
+                question_link = await self.get_first_question(self.driver)
+                if await self.write_answer(driver=self.driver, question_link=question_link):
+                    self.answers_count += 1
+                
+                print(f"ANSWERED {self.answers_count}/{self.configs['answers_per_day']}")
+                await long_sleep(self.configs["page_refresh"])
+        
         print("STOPPING PROGRAM")
         self.running = False
         return
