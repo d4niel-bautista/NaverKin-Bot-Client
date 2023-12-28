@@ -76,3 +76,6 @@ async def get_connection_info():
     outbound_msg = {}
     outbound_msg["type"] = "get_connection_info"
     await ws_outbound.put(outbound_msg)
+
+async def get_account(account_id: int):
+    await send_get_request(table="naver_accounts", filters={"id": account_id})
