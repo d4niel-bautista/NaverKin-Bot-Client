@@ -22,9 +22,7 @@ class AutoanswerBot(NaverKinBot):
         for i in range(len(self.account_ids)):
             if not await super().main():
                 if i + 1 < len(self.account_ids) - 1:
-                    await get_account(self.account_ids[i + 1])
-                    await self.data_queue.put(self.configs)
-                    await self.data_queue.put(self.prompt_configs)
+                    await self.fetch_new_account(account_id=self.account_ids[i + 1])
                     continue
             
             self.prompt_configs = await self.data_queue.get()
@@ -40,9 +38,7 @@ class AutoanswerBot(NaverKinBot):
                     self.stop = False
 
                     if i + 1 < len(self.account_ids) - 1:
-                        await get_account(self.account_ids[i + 1])
-                        await self.data_queue.put(self.configs)
-                        await self.data_queue.put(self.prompt_configs)
+                        await self.fetch_new_account(account_id=self.account_ids[i + 1])
                         break
                 
                 question_link = await self.get_first_question(self.driver)
@@ -55,6 +51,15 @@ class AutoanswerBot(NaverKinBot):
         print("STOPPING PROGRAM")
         self.running = False
         return
+    
+    async def fetch_new_account(self, account_id: int):
+        await get_account(account_id=account_id)
+        account = await self.data_queue.get()
+        user_session = await self.data_queue.get()
+        await self.data_queue.put(account)
+        await self.data_queue.put(user_session)
+        await self.data_queue.put(self.configs)
+        await self.data_queue.put(self.prompt_configs)
     
     async def get_first_question(self, driver: undetected.Chrome):
         driver.uc_open_with_reconnect('https://kin.naver.com/', 10)
