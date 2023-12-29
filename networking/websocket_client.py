@@ -18,6 +18,7 @@ class WebsocketClient():
         self.is_reconnecting = False
         self.disable_reconnection = False
         self.account = {}
+        self.account_ids = []
         self.prompt_configs = {}
         self.botconfigs = {}
     
@@ -55,7 +56,7 @@ class WebsocketClient():
             if len(self.account) > 0:
                 await update_state(state=2)
                 if self.client_id == "autoanswerbot":
-                    await update_autoanswerbot_configs(account=self.account, prompt_configs=self.prompt_configs, botconfigs=self.botconfigs)
+                    await update_autoanswerbot_configs(account=self.account, account_ids=self.account_ids, prompt_configs=self.prompt_configs, botconfigs=self.botconfigs)
             self.is_reconnecting = False
     
     async def receive_message(self):
@@ -82,6 +83,9 @@ class WebsocketClient():
                         self.prompt_configs = inbound_msg["data"]
                     elif "answers_per_day" in inbound_msg["data"]:
                         self.botconfigs = inbound_msg["data"]
+                    elif "account_ids" in inbound_msg["data"]:
+                        inbound_msg["data"] = inbound_msg["data"]["account_ids"]
+                        self.account_ids = inbound_msg["data"]
 
                 await self.bot_client_inbound.put(inbound_msg)
             except ConnectionClosed as e:

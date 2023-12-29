@@ -64,10 +64,11 @@ async def update_state(state: int):
     outbound_msg["update_state"] = state
     await ws_outbound.put(outbound_msg)
 
-async def update_autoanswerbot_configs(account: dict, prompt_configs: dict, botconfigs: dict):
+async def update_autoanswerbot_configs(account: dict, account_ids: list, prompt_configs: dict, botconfigs: dict):
     outbound_msg = {}
     outbound_msg["type"] = "update_configs"
     outbound_msg["account"] = account
+    outbound_msg["account_ids"] = account_ids
     outbound_msg["prompt_configs"] = prompt_configs
     outbound_msg["botconfigs"] = botconfigs
     await ws_outbound.put(outbound_msg)
