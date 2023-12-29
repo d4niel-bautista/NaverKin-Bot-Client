@@ -3,7 +3,7 @@ import asyncio
 class AsyncWorker():
     def __init__(self, bot_client_inbound) -> None:
         self.bot_client_inbound = bot_client_inbound
-        self.data_queue = asyncio.Queue(maxsize=1)
+        self.data_queue = asyncio.Queue(maxsize=10)
     
     async def process_inbound_message(self):
         while True:
