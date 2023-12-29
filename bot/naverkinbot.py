@@ -60,70 +60,74 @@ class NaverKinBot(AsyncWorker):
         return driver
 
     async def main(self):
-        print("STARTED")
+        try:
+            print("STARTED")
 
-        # WAIT FOR SERVER TO SEND USERNAME/PASSWORD
-        self.account = await self.data_queue.get()
-        print(f"RECEIVED {self.account['username']} ACCOUNT")
-        print(self.account)
+            # WAIT FOR SERVER TO SEND USERNAME/PASSWORD
+            self.account = await self.data_queue.get()
+            print(f"RECEIVED {self.account['username']} ACCOUNT")
+            print(self.account)
 
-        #WAIT FOR SERVER TO SEND USER SESSION
-        self.user_session = await self.data_queue.get()
-        print(self.user_session)
+            #WAIT FOR SERVER TO SEND USER SESSION
+            self.user_session = await self.data_queue.get()
+            print(self.user_session)
 
-        #WAIT FOR SERVER TO SEND CONFIGS
-        self.configs = await self.data_queue.get()
-        print(self.configs)
+            #WAIT FOR SERVER TO SEND CONFIGS
+            self.configs = await self.data_queue.get()
+            print(self.configs)
 
-        await update_state(state=2)
+            await update_state(state=2)
 
-        self.driver = await self.init_driver()
+            self.driver = await self.init_driver()
 
-        await short_sleep(5)
-        await websocket_disconnect()
-        await reconnect_modem(self.driver)
-        await websocket_connect()
-        await short_sleep(30)
+            await short_sleep(5)
+            await websocket_disconnect()
+            await reconnect_modem(self.driver)
+            await websocket_connect()
+            await short_sleep(30)
 
-        await send_logging_data(level="info", log=f"{self.account['username']} HAS IP {await get_current_public_ip()}")
-        print("SENT PUBLIC IP ADDRESS TO SERVER FOR LOGGING")
-        await short_sleep(5)
+            await send_logging_data(level="info", log=f"{self.account['username']} HAS IP {await get_current_public_ip()}")
+            print("SENT PUBLIC IP ADDRESS TO SERVER FOR LOGGING")
+            await short_sleep(5)
 
-        self.driver.uc_open_with_reconnect("https://kin.naver.com/", 10)
-        await load_cookies(self.driver, self.user_session['cookies'])
-        await short_sleep(5)
-        self.driver.uc_open_with_reconnect("https://kin.naver.com/", 10)
+            self.driver.uc_open_with_reconnect("https://kin.naver.com/", 10)
+            await load_cookies(self.driver, self.user_session['cookies'])
+            await short_sleep(5)
+            self.driver.uc_open_with_reconnect("https://kin.naver.com/", 10)
 
-        login_attempts = 0
-        while login_attempts <= 2:
-            if await logged_in(self.driver):
-                break
-            await self.login(self.driver)
-            if login_attempts == 0:
-                login_attempts += 1
+            login_attempts = 0
+            while login_attempts <= 2:
+                if await logged_in(self.driver):
+                    break
+                await self.login(self.driver)
+                if login_attempts == 0:
+                    login_attempts += 1
+                    continue
+                else:
+                    print("FAILED LOGIN ATTEMPT")
+                    await short_sleep(30)
+                    login_attempts += 1
+                if login_attempts == 3:
+                    print(f"FAILED LOGGING IN WITH {self.account['username']}'s ACCOUNT! STOPPING PROGRAM")
+                    return False
                 continue
-            else:
-                print("FAILED LOGIN ATTEMPT")
-                await short_sleep(30)
-                login_attempts += 1
-            if login_attempts == 3:
-                print(f"FAILED LOGGING IN WITH {self.account['username']}'s ACCOUNT! STOPPING PROGRAM")
-                return False
-            continue
-        
-        print(f"{self.account['username']} LOGGED IN")
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        await save_login(username=self.account['username'], ip_address=await get_current_public_ip(), login_timestamp=now)
-        await short_sleep(5)
-        await send_update_request(table="naver_accounts", data={"last_login": f"{await get_current_public_ip()} {now}"}, filters={"username": self.account["username"]})
-        await short_sleep(5)
-        await self.close_popups(self.driver)
-        if not self.user_session["cookies"] or login_attempts != 0:
-            await save_cookies(self.account["username"], self.driver)
-        if not self.user_session["user_agent"] or login_attempts != 0:
-            await save_user_agent(self.account["username"], self.driver)
-        await self.get_account_url_and_level(driver=self.driver)
-        return True
+            
+            print(f"{self.account['username']} LOGGED IN")
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            await save_login(username=self.account['username'], ip_address=await get_current_public_ip(), login_timestamp=now)
+            await short_sleep(5)
+            await send_update_request(table="naver_accounts", data={"last_login": f"{await get_current_public_ip()} {now}"}, filters={"username": self.account["username"]})
+            await short_sleep(5)
+            await self.close_popups(self.driver)
+            if not self.user_session["cookies"] or login_attempts != 0:
+                await save_cookies(self.account["username"], self.driver)
+            if not self.user_session["user_agent"] or login_attempts != 0:
+                await save_user_agent(self.account["username"], self.driver)
+            await self.get_account_url_and_level(driver=self.driver)
+            return True
+        except Exception as e:
+            print(e)
+            return False
     
     async def login(self, driver: undetected.Chrome):
         await short_sleep(5)
