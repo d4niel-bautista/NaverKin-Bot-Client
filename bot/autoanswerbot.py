@@ -19,36 +19,39 @@ class AutoanswerBot(NaverKinBot):
         self.account_ids = await self.data_queue.get()
         print(self.account_ids)
 
-        for i in range(len(self.account_ids)):
-            if not await super().main():
-                if i + 1 < len(self.account_ids) - 1:
-                    await self.fetch_new_account(account_id=self.account_ids[i + 1])
-                    continue
-            
-            self.prompt_configs = await self.data_queue.get()
-            print(self.prompt_configs)
-            await short_sleep(5)
-            while self.running:
-                if self.reached_id_limit or self.answers_count >= self.configs["answers_per_day"] or self.stop:
-                    print(f"STOP: {self.stop}\nID LIMIT: {self.reached_id_limit}\nANSWER COUNT: {self.answers_count}/{self.configs['answers_per_day']}")
-                    print("WILL CHANGE ACCOUNT")
-                    await long_sleep(self.configs["page_refresh"])
-                    self.reached_id_limit = False
-                    self.answers_count = 0
-                    self.stop = False
-
-                    if i + 1 <= len(self.account_ids) - 1:
+        while self.running:
+            for i in range(len(self.account_ids)):
+                if not await super().main():
+                    if i + 1 < len(self.account_ids) - 1:
                         await self.fetch_new_account(account_id=self.account_ids[i + 1])
+                        continue
+                
+                self.prompt_configs = await self.data_queue.get()
+                print(self.prompt_configs)
+                await short_sleep(5)
+                while self.running:
+                    if self.reached_id_limit or self.answers_count >= self.configs["answers_per_day"] or self.stop:
+                        print(f"STOP: {self.stop}\nID LIMIT: {self.reached_id_limit}\nANSWER COUNT: {self.answers_count}/{self.configs['answers_per_day']}")
+                        print("WILL CHANGE ACCOUNT")
+                        await long_sleep(self.configs["page_refresh"])
+                        self.reached_id_limit = False
+                        self.answers_count = 0
+                        self.stop = False
+
+                        if i + 1 <= len(self.account_ids) - 1:
+                            await self.fetch_new_account(account_id=self.account_ids[i + 1])
+                            break
+                        print("ALREADY IN LAST ACCOUNT")
                         break
-                    print("ALREADY IN LAST ACCOUNT")
-                    break
-                
-                question_link = await self.get_first_question(self.driver)
-                if await self.write_answer(driver=self.driver, question_link=question_link):
-                    self.answers_count += 1
-                
-                print(f"ANSWERED {self.answers_count}/{self.configs['answers_per_day']}")
-                await long_sleep(self.configs["page_refresh"])
+                    
+                    question_link = await self.get_first_question(self.driver)
+                    if await self.write_answer(driver=self.driver, question_link=question_link):
+                        self.answers_count += 1
+                    
+                    print(f"ANSWERED {self.answers_count}/{self.configs['answers_per_day']}")
+                    await long_sleep(self.configs["page_refresh"])
+            print("DONE WITH ALL ACCOUNTS. STARTING NEW ITERATION")
+            await long_sleep(self.configs["page_refresh"])
         
         print("STOPPING PROGRAM")
         self.running = False
