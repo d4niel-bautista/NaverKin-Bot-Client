@@ -37,9 +37,11 @@ class AutoanswerBot(NaverKinBot):
                     self.answers_count = 0
                     self.stop = False
 
-                    if i + 1 < len(self.account_ids) - 1:
+                    if i + 1 <= len(self.account_ids) - 1:
                         await self.fetch_new_account(account_id=self.account_ids[i + 1])
                         break
+                    print("ALREADY IN LAST ACCOUNT")
+                    break
                 
                 question_link = await self.get_first_question(self.driver)
                 if await self.write_answer(driver=self.driver, question_link=question_link):
