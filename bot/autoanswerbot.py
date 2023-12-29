@@ -62,6 +62,7 @@ class AutoanswerBot(NaverKinBot):
         await self.data_queue.put(user_session)
         await self.data_queue.put(self.configs)
         await self.data_queue.put(self.prompt_configs)
+        self.driver.quit()
     
     async def get_first_question(self, driver: undetected.Chrome):
         driver.uc_open_with_reconnect('https://kin.naver.com/', 10)
