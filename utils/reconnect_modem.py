@@ -59,8 +59,9 @@ async def start(driver):
 
             print('Disconnecting the modem...')
             select_element.select_by_value('1')
-            apply_element.click()
             await asyncio.sleep(3)
+            apply_element.click()
+            await asyncio.sleep(7)
 
             confirms = driver.find_elements(By.CSS_SELECTOR, '.xubox_layer div.xubox_main .xubox_botton a.xubox_yes')
 
@@ -68,12 +69,13 @@ async def start(driver):
                 if confirm.is_displayed():
                     confirm.click()
 
-            await asyncio.sleep(3)
+            await asyncio.sleep(60)
 
             print('Re-connecting the modem...')
             select_element.select_by_value('0')
+            await asyncio.sleep(3)
             apply_element.click()
-            await asyncio.sleep(60)
+            await asyncio.sleep(7)
 
             confirms = driver.find_elements(By.CSS_SELECTOR, '.xubox_layer div.xubox_main .xubox_botton a.xubox_yes')
 
@@ -81,12 +83,12 @@ async def start(driver):
                 if confirm.is_displayed():
                     confirm.click()
 
-            await asyncio.sleep(30)
+            await asyncio.sleep(3)
 
             print('Modem is now connected...')
-            await asyncio.sleep(30)
+            await asyncio.sleep(60)
             print('Program Closing in 20 seconds...')
-            await asyncio.sleep(3)
+            await asyncio.sleep(20)
         except Exception as e:
             print('Program Error: ', e)
 
