@@ -47,9 +47,13 @@ class WebsocketClient():
                 print("Reconnection currently disabled")
                 await asyncio.sleep(1)
                 return
-
+            
+            print("Reconnecting...")
             self.is_reconnecting = True
-            await self.websocket.close()
+            if not self.websocket.closed:
+                await self.websocket.close()
+            else:
+                print("Websocket is already closed")
             await asyncio.sleep(5)
             await self.connect()
             await get_connection_info()
@@ -89,10 +93,10 @@ class WebsocketClient():
 
                 await self.bot_client_inbound.put(inbound_msg)
             except ConnectionClosed as e:
-                print(f"WebSocket connection closed: {e}")
+                print(f"WebSocket connection closed during receiving: {e}")
                 await self.reconnect()
             except Exception as e:
-                print(f"An unexpected error occurred when receiving: {e}")
+                print(f"An unexpected error occurred when receiving: {repr(e)}")
                 await self.reconnect()
 
     async def send_message(self):
@@ -116,10 +120,10 @@ class WebsocketClient():
                 outbound_msg["connection_id"] = self.connection_id
                 await self.websocket.send(json.dumps(outbound_msg))
             except ConnectionClosed as e:
-                print(f"WebSocket connection closed: {e}")
+                print(f"WebSocket connection closed during receiving: {e}")
                 await self.reconnect()
             except Exception as e:
-                print(f"An unexpected error occurred during sending: {e}")
+                print(f"An unexpected error occurred during sending: {repr(e)}")
                 await self.reconnect()
 
     async def start(self):
