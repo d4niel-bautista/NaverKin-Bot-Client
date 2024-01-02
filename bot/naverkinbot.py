@@ -194,6 +194,11 @@ class NaverKinBot(AsyncWorker):
                         print(f"CAPTCHA TRIGGERED {now} - {driver.current_url}")
                         self.stop = True
                         return False
+                    elif popup_id == "realNameRequiredForAnswerPopup":
+                        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        print(f"REQUIRES VERIFICATION {now} - {driver.current_url}")
+                        self.stop = True
+                        return False
 
                     a_close = popup.find_elements('xpath', './/a[@href="#" or contains(@class, "close") or .//span[contains(@class, "close")]]')
                     btn_close = popup.find_elements('xpath', './/button[@type="button" and contains(@class, "close")]')
