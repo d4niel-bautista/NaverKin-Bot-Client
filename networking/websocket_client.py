@@ -27,8 +27,8 @@ class WebsocketClient():
             websocket_endpoint = f"{self.server_addr}?bot={self.client_id}&group_id={self.group_id}&VM_id={self.VM_id}"
             self.websocket = await client.connect(websocket_endpoint)
             print(f"{self.client_id.upper()} CONNECTED")
-        except asyncio.exceptions.CancelledError as e:
-            print(f"Connecting error: {e}")
+        except Exception as e:
+            print(f"Connecting error: {repr(e)}")
             await asyncio.sleep(10)
             return await self.connect()
     
