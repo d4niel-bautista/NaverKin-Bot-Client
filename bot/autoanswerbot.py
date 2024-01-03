@@ -41,7 +41,7 @@ class AutoanswerBot(NaverKinBot):
                     if await self.write_answer(driver=self.driver, question_link=question_link):
                         self.answers_count += 1
                     
-                    print(f"ANSWERED {self.answers_count}/{self.configs['answers_per_day']}")
+                    print(f"ANSWERED {self.answers_count}/{self.configs['answers_per_day']} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                     await long_sleep(self.configs["page_refresh"])
                 
                 print(f"STOP: {self.stop}\nID LIMIT: {self.reached_id_limit}\nANSWER COUNT: {self.answers_count}/{self.configs['answers_per_day']}")
