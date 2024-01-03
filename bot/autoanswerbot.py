@@ -36,7 +36,7 @@ class AutoanswerBot(NaverKinBot):
                 print(self.prompt_configs)
                 await short_sleep(5)
 
-                while self.answers_count < self.configs["answers_per_day"] or not self.reached_id_limit or not self.stop:
+                while self.answers_count < self.configs["answers_per_day"] and not self.reached_id_limit and not self.stop:
                     question_link = await self.get_first_question(self.driver)
                     if await self.write_answer(driver=self.driver, question_link=question_link):
                         self.answers_count += 1
