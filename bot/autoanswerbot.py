@@ -46,15 +46,16 @@ class AutoanswerBot(NaverKinBot):
                 
                 print(f"STOP: {self.stop}\nID LIMIT: {self.reached_id_limit}\nANSWER COUNT: {self.answers_count}/{self.configs['answers_per_day']}")
                 print("WILL CHANGE ACCOUNT")
-                await long_sleep(self.configs["page_refresh"])
                 self.reached_id_limit = False
                 self.answers_count = 0
                 self.stop = False
                 
                 if i + 1 < len(self.account_ids) - 1:
+                    await long_sleep(self.configs["page_refresh"])
                     await self.fetch_new_account(account_id=self.account_ids[i + 1])
                 else:
                     print("ALREADY IN LAST ACCOUNT. RESTARTING")
+                    await long_sleep(self.configs["cooldown"])
                     await self.fetch_new_account(account_id=self.account_ids[0])
         
         print("STOPPING PROGRAM")
