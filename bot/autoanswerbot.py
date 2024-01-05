@@ -13,6 +13,7 @@ class AutoanswerBot(NaverKinBot):
         self.answers_count = 0
         self.reached_id_limit = False
         self.account_ids = []
+        self.prompt_configs = {}
         super().__init__(queues)
 
     async def main(self):
@@ -69,6 +70,9 @@ class AutoanswerBot(NaverKinBot):
         await self.data_queue.put(account)
         await self.data_queue.put(user_session)
         await self.data_queue.put(self.configs)
+        if not self.prompt_configs:
+            self.prompt_configs = await self.data_queue.get()
+            print(self.prompt_configs)
         await self.data_queue.put(self.prompt_configs)
         self.driver.quit()
     
