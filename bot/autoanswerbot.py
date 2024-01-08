@@ -26,10 +26,11 @@ class AutoanswerBot(NaverKinBot):
                     await long_sleep(self.configs["page_refresh"])
 
                     if i + 1 < len(self.account_ids) - 1:
+                        print(f"ERROR LOGGING IN WITH ACCOUNT ID: {self.account_ids[i]}")
                         await self.fetch_new_account(account_id=self.account_ids[i + 1])
                         continue
                     else:
-                        print("ERROR WITH LAST ACCOUNT. RESTARTING")
+                        print(f"ERROR WITH LAST ACCOUNT {self.account_ids[i]}. RESTARTING")
                         await self.fetch_new_account(account_id=self.account_ids[0])
                         break
                 
@@ -64,6 +65,7 @@ class AutoanswerBot(NaverKinBot):
         return
     
     async def fetch_new_account(self, account_id: int):
+        print(f"FETCHING NEW ACCOUNT WITH ID: {account_id}")
         await get_account(account_id=account_id)
         account = await self.data_queue.get()
         user_session = await self.data_queue.get()
