@@ -25,7 +25,7 @@ class AutoanswerBot(NaverKinBot):
                 if not await super().main():
                     await long_sleep(self.configs["page_refresh"])
 
-                    if i + 1 < len(self.account_ids) - 1:
+                    if i + 1 <= len(self.account_ids) - 1:
                         print(f"ERROR LOGGING IN WITH ACCOUNT ID: {self.account_ids[i]}")
                         await self.fetch_new_account(account_id=self.account_ids[i + 1])
                         continue
@@ -52,7 +52,7 @@ class AutoanswerBot(NaverKinBot):
                 self.answers_count = 0
                 self.stop = False
                 
-                if i + 1 < len(self.account_ids) - 1:
+                if i + 1 <= len(self.account_ids) - 1:
                     await long_sleep(self.configs["page_refresh"])
                     await self.fetch_new_account(account_id=self.account_ids[i + 1])
                 else:
